@@ -94,6 +94,7 @@ const phoneSchema = z
  * Backend SiteUserRegisterDto와 동일한 구조:
  * - userId: 사용자 아이디
  * - userPwd: 비밀번호
+ * - confirmPassword: 비밀번호 확인 (frontend에서만 사용)
  * - userName: 사용자 이름
  * - userEmail: 이메일
  * - phone: 전화번호
@@ -101,9 +102,13 @@ const phoneSchema = z
 const signUpSchema = z.object({
   userId: userIdSchema,
   userPwd: passwordSchema,
+  confirmPassword: z.string().min(1, {message: "비밀번호 확인을 입력하세요."}),
   userName: nameSchema,
   userEmail: emailSchema,
   phone: phoneSchema,
+}).refine((data) => data.userPwd === data.confirmPassword, {
+  message: "비밀번호가 일치하지 않습니다.",
+  path: ["confirmPassword"], // 에러를 confirmPassword 필드에 표시
 })
 
 /**
@@ -133,6 +138,13 @@ export const userSchemas = {
 // common.ts의 extractDefaultValues 함수를 사용하여 각 스키마의 기본값을 생성
 // 이 기본값들은 React Hook Form의 defaultValues로 사용됩니다.
 export const userDefaultValues = {
-  signUpDefaultValues: extractDefaultValues(signUpSchema),
+  signUpDefaultValues: {
+    userId: "",
+    userPwd: "",
+    confirmPassword: "",
+    userName: "",
+    userEmail: "",
+    phone: "",
+  },
   loginDefaultValues: extractDefaultValues(loginSchema),
 }

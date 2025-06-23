@@ -51,7 +51,7 @@ export default function Login() {
         login(response.data.access.token, response.data.refresh.token);
         
         console.log("로그인 성공!", response);
-        alert("로그인이 완료되었습니다!");
+        // alert("로그인이 완료되었습니다!");
         reset();
         
         // 메인 페이지로 이동

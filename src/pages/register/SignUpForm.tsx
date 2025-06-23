@@ -60,8 +60,11 @@ export function SignUpForm() {
     try {
       console.log("회원가입 데이터:", data);
       
+      // confirmPassword 필드를 제거하여 backend API에 맞는 데이터만 전송
+      const { confirmPassword, ...registerData } = data;
+      
       // Backend API 호출
-      const response = await registerUser(data);
+      const response = await registerUser(registerData);
       
       if (response.code === "OK") {
         // 회원가입 성공 처리
@@ -118,6 +121,20 @@ export function SignUpForm() {
             />
             {errors.userPwd && (
               <p className="text-sm text-red-500">{errors.userPwd.message}</p>
+            )}
+          </div>
+
+          {/* 비밀번호 확인 */}
+          <div className="grid gap-2">
+            <Label htmlFor="confirmPassword">비밀번호 확인</Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              placeholder="비밀번호를 다시 입력하세요"
+              {...register("confirmPassword")}
+            />
+            {errors.confirmPassword && (
+              <p className="text-sm text-red-500">{errors.confirmPassword.message}</p>
             )}
           </div>
 
