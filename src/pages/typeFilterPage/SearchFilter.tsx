@@ -23,50 +23,90 @@ interface CategoryData {
 
 interface SearchFilterProps {
   selectedCategory: CategoryData;
+  searchKeyword: string;
+  onSearch: (conditions: any) => void;
 }
-export default function SearchFilter({ selectedCategory }: SearchFilterProps) {
-  const [selectedMain, setSelectedMain] = useState("");
-  const [selectedMid, setSelectedMid] = useState("");
-  const [selectedDetail, setSelectedDetail] = useState("");
-  const [selectedSido, setSelectedSido] = useState("");
-  const [selectedSigungu, setSelectedSigungu] = useState("");
+
+export default function SearchFilter({
+  selectedCategory,
+  searchKeyword,
+  onSearch,
+}: SearchFilterProps) {
+  const [conditions, setConditions] = useState({
+    category: "",
+    main: "",
+    mid: "",
+    detail: "",
+    sido: "",
+    sigungu: "",
+    keyword: "",
+  });
 
   // 선택된 값에 대한 대분류, 중분류, 소분류의 목록 생성
   const mainOptions = selectedCategory?.main?.map((m) => m.main) || [];
-  const middleOptions = selectedMain
+  const middleOptions = conditions.main
     ? selectedCategory.main
-        .find((m) => m.main === selectedMain)
+        .find((m) => m.main === conditions.main)
         ?.sub.map((s) => s.mid) || []
     : [];
-  const detailOptions = selectedMid
+  const detailOptions = conditions.mid
     ? selectedCategory.main
         .flatMap((m) => m.sub)
-        .find((s) => s.mid === selectedMid)?.detail || []
+        .find((s) => s.mid === conditions.mid)?.detail || []
     : [];
-
-  useEffect(() => {
-    setSelectedMain("");
-    setSelectedMid("");
-    setSelectedDetail("");
-  }, [selectedCategory]);
-  useEffect(() => {
-    setSelectedMid("");
-    setSelectedDetail("");
-  }, [selectedMain]);
-
-  useEffect(() => {
-    setSelectedDetail("");
-  }, [selectedMid]);
-
-  useEffect(() => {
-    setSelectedSigungu("");
-  }, [selectedSido]);
 
   // 지역에 대한 select option 생성
   const sidoOptions = Object.keys(region[0].sido);
-  const sigunguOptions = selectedSido
-    ? region[0].sido[selectedSido]?.sigungu || []
+  const sigunguOptions = conditions.sido
+    ? region[0].sido[conditions.sido]?.sigungu || []
     : [];
+
+  // 상태변수 관리
+  useEffect(() => {
+    setConditions((prev) => ({
+      ...prev,
+      category: selectedCategory.category,
+      main: "",
+      mid: "",
+      detail: "",
+      sido: "",
+      sigungu: "",
+    }));
+  }, [selectedCategory]);
+
+  useEffect(() => {
+    setConditions((prev) => ({
+      ...prev,
+      mid: "",
+      detail: "",
+    }));
+  }, [conditions.main]);
+
+  useEffect(() => {
+    setConditions((prev) => ({
+      ...prev,
+      detail: "",
+    }));
+  }, [conditions.mid]);
+
+  useEffect(() => {
+    setConditions((prev) => ({
+      ...prev,
+      sigungu: "",
+    }));
+  }, [conditions.sido]);
+
+  useEffect(() => {
+    setConditions((prev) => ({
+      ...prev,
+      keyword: searchKeyword || "",
+    }));
+  }, [searchKeyword]);
+
+  // 검색 실행
+  const handleLocalSearch = () => {
+    onSearch(conditions);
+  };
 
   return (
     <>
@@ -76,8 +116,13 @@ export default function SearchFilter({ selectedCategory }: SearchFilterProps) {
 
           <div className="flex flex-wrap gap-4">
             <div className="flex flex-col">
-              <h6 className="mb-1 text-sm font-medium">대분류</h6>
-              <Select value={selectedMain} onValueChange={setSelectedMain}>
+              {/* <h6 className="mb-1 text-sm font-medium">대분류</h6> */}
+              <Select
+                value={conditions.main}
+                onValueChange={(value) =>
+                  setConditions((prev) => ({ ...prev, main: value }))
+                }
+              >
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="대분류 선택" />
                 </SelectTrigger>
@@ -91,11 +136,13 @@ export default function SearchFilter({ selectedCategory }: SearchFilterProps) {
               </Select>
             </div>
             <div className="flex flex-col">
-              <h6>중분류</h6>
+              {/* <h6>중분류</h6> */}
               <Select
-                value={selectedMid}
-                onValueChange={setSelectedMid}
-                disabled={!selectedMain}
+                value={conditions.mid}
+                onValueChange={(value) =>
+                  setConditions((prev) => ({ ...prev, mid: value }))
+                }
+                disabled={!conditions.main}
               >
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="중분류 선택" />
@@ -110,11 +157,13 @@ export default function SearchFilter({ selectedCategory }: SearchFilterProps) {
               </Select>
             </div>
             <div className="flex flex-col">
-              <h6>소분류</h6>
+              {/* <h6>소분류</h6> */}
               <Select
-                value={selectedDetail}
-                onValueChange={setSelectedDetail}
-                disabled={!selectedMid}
+                value={conditions.detail}
+                onValueChange={(value) =>
+                  setConditions((prev) => ({ ...prev, detail: value }))
+                }
+                disabled={!conditions.mid}
               >
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="소분류 선택" />
@@ -129,8 +178,13 @@ export default function SearchFilter({ selectedCategory }: SearchFilterProps) {
               </Select>
             </div>
             <div className="flex flex-col">
-              <h6>법정동시도</h6>
-              <Select value={selectedSido} onValueChange={setSelectedSido}>
+              {/* <h6>법정동시도</h6> */}
+              <Select
+                value={conditions.sido}
+                onValueChange={(value) =>
+                  setConditions((prev) => ({ ...prev, sido: value }))
+                }
+              >
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="법정동시도 선택" />
                 </SelectTrigger>
@@ -144,10 +198,12 @@ export default function SearchFilter({ selectedCategory }: SearchFilterProps) {
               </Select>
             </div>
             <div className="flex flex-col">
-              <h6>법정동시군구</h6>
+              {/* <h6>법정동시군구</h6> */}
               <Select
-                value={selectedSigungu}
-                onValueChange={setSelectedSigungu}
+                value={conditions.sigungu}
+                onValueChange={(value) =>
+                  setConditions((prev) => ({ ...prev, sigungu: value }))
+                }
               >
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="법정동시군구 선택" />
@@ -167,8 +223,16 @@ export default function SearchFilter({ selectedCategory }: SearchFilterProps) {
               type="text"
               placeholder="검색어 입력"
               className="flex-[8] rounded border border-gray-300 px-4 py-2 focus:outline-none"
+              value={conditions.keyword}
+              onChange={(e) =>
+                setConditions((prev) => ({ ...prev, keyword: e.target.value }))
+              }
             />
-            <Button size="lg" className="flex-[2] text-lg">
+            <Button
+              size="lg"
+              className="flex-[2] text-lg"
+              onClick={handleLocalSearch}
+            >
               <Search className="mr-2 h-5 w-5" /> 검색
             </Button>
           </div>

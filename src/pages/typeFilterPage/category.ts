@@ -1,4 +1,15 @@
-export const category = [
+type CategoryType = {
+  category: string;
+  main: {
+    main: string;
+    sub: {
+      mid: string;
+      detail: string[];
+    }[];
+  }[];
+};
+
+export const category: CategoryType[] = [
   {
     category: "spots",
     main: [

@@ -1,10 +1,24 @@
-import CalendarTrigger from "@/components/calendarTrigger/CalenderTrigger";
 import InputWithIcon from "@/components/InputWithIcon";
 import { Button } from "@/components/ui/button";
-import { Hotel, MapPin, Mountain, Search, UserPlus, UtensilsCrossed } from "lucide-react";
+import {
+  Hotel,
+  MapPin,
+  Mountain,
+  Search,
+  UserPlus,
+  UtensilsCrossed,
+} from "lucide-react";
 import RecommendedContentSection from "./RecommendedContentSection";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import TravelSession from "./TravelSession";
+import {
+  Select,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@radix-ui/react-select";
+import { SelectTrigger } from "@/components/ui/select";
+import { useNavigate } from "react-router-dom";
 
 export default function MainPage() {
   const travelThemes = useMemo(
@@ -12,12 +26,14 @@ export default function MainPage() {
       {
         title: "힐링 & 휴식",
         icon: <Hotel className="w-8 h-8" />,
-        color: "bg-emerald-100 dark:bg-emerald-900 text-emerald-600 dark:text-emerald-300",
+        color:
+          "bg-emerald-100 dark:bg-emerald-900 text-emerald-600 dark:text-emerald-300",
       },
       {
         title: "미식 탐방",
         icon: <UtensilsCrossed className="w-8 h-8" />,
-        color: "bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-300",
+        color:
+          "bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-300",
       },
       {
         title: "자연 & 모험",
@@ -27,11 +43,31 @@ export default function MainPage() {
       {
         title: "도시 & 문화",
         icon: <UserPlus className="w-8 h-8" />,
-        color: "bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300",
+        color:
+          "bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300",
       },
     ],
     []
   );
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [keyword, setKeyword] = useState("");
+  const navigate = useNavigate();
+
+  const categories = [
+    { value: "spots", label: "관광지" },
+    { value: "facilities", label: "문화시설" },
+    { value: "festivals", label: "축제/행사" },
+    { value: "courses", label: "여행코스" },
+  ];
+
+  const handleSearch = () => {
+    // 선택한 값과 검색어를 쿼리 파라미터로 전달
+    const params = new URLSearchParams();
+    if (selectedCategory) params.append("category", selectedCategory);
+    if (keyword) params.append("keyword", keyword);
+
+    navigate(`/type-filter?${params.toString()}`);
+  };
 
   return (
     <>
@@ -54,21 +90,62 @@ export default function MainPage() {
             여행하고 싶은 곳이 어디인가요?
           </h1>
           <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-neutral-200 drop-shadow-lg">
-            대한민국의 숨겨진 여행지를 발견하고, 여러분의 최고의 순간을 계획해보세요.
+            대한민국의 숨겨진 여행지를 발견하고, 여러분의 최고의 순간을
+            계획해보세요.
           </p>
           <div className="mt-8 mx-auto max-w-3xl p-4 bg-background/80 dark:bg-background/60 backdrop-blur-md rounded-xl shadow-2xl">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-              <div className="md:col-span-2">
+            <div className="flex gap-4 items-center">
+              {/* 셀렉트 (2) */}
+              <div className="flex-[2] min-w-0">
+                <Select
+                  value={selectedCategory}
+                  onValueChange={(val) => {
+                    console.log(val);
+                    setSelectedCategory(val);
+                  }}
+                >
+                  <SelectTrigger
+                    className="w-full rounded-md border border-gray-300 bg-white text-black px-3 py-1 h-9"
+                    size="default"
+                  >
+                    <SelectValue placeholder="카테고리 선택" />
+                  </SelectTrigger>
+                  <SelectContent
+                    position="popper"
+                    className="w-full min-w-[var(--radix-select-trigger-width)] rounded-md border border-gray-300 bg-white text-black shadow-lg"
+                    sideOffset={4}
+                  >
+                    {categories.map((category) => (
+                      <SelectItem key={category.value} value={category.value}>
+                        {category.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* 입력창 (7) */}
+              <div className="flex-[6] min-w-0">
                 <InputWithIcon
-                  className="text-black"
                   icon={<MapPin className="h-5 w-5 text-muted-foreground" />}
-                  placeholder="도시나 국가를 검색해보세요..."
+                  iconPosition="left"
+                  className="w-full rounded-md border border-gray-300 px-3 py-1 h-9 bg-white text-black"
+                  placeholder="도시나 지역을 검색해보세요..."
+                  value={keyword}
+                  onChange={(e) => setKeyword(e.target.value)}
                 />
               </div>
-              <CalendarTrigger />
-              <Button size="lg" className="w-full h-full text-lg">
-                <Search className="mr-2 h-5 w-5" /> 검색
-              </Button>
+
+              {/* 버튼 (1) */}
+              <div className="flex-[2] min-w-0">
+                <Button
+                  size="default"
+                  className="w-full rounded-md h-9 px-4"
+                  onClick={handleSearch}
+                >
+                  <Search className="mr-2 h-5 w-5" /> 검색
+                </Button>
+              </div>
             </div>
           </div>
         </div>
