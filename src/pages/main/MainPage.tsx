@@ -11,13 +11,7 @@ import {
 import RecommendedContentSection from "./RecommendedContentSection";
 import { useMemo, useState } from "react";
 import TravelSession from "./TravelSession";
-import {
-  Select,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@radix-ui/react-select";
-import { SelectTrigger } from "@/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
 
 export default function MainPage() {
@@ -93,30 +87,29 @@ export default function MainPage() {
             대한민국의 숨겨진 여행지를 발견하고, 여러분의 최고의 순간을
             계획해보세요.
           </p>
-          <div className="mt-8 mx-auto max-w-3xl p-4 bg-background/80 dark:bg-background/60 backdrop-blur-md rounded-xl shadow-2xl">
+          <div className="mt-8 max-w-3xl p-4 bg-background/80 dark:bg-background/60 backdrop-blur-md text-black rounded-xl shadow-2xl">
             <div className="flex gap-4 items-center">
               {/* 셀렉트 (2) */}
               <div className="flex-[2] min-w-0">
                 <Select
                   value={selectedCategory}
                   onValueChange={(val) => {
-                    console.log(val);
                     setSelectedCategory(val);
                   }}
                 >
                   <SelectTrigger
-                    className="w-full rounded-md border border-gray-300 bg-white text-black px-3 py-1 h-9"
+                    className="w-full rounded-md border border-gray-300 bg-white"
                     size="default"
                   >
                     <SelectValue placeholder="카테고리 선택" />
                   </SelectTrigger>
                   <SelectContent
                     position="popper"
-                    className="w-full min-w-[var(--radix-select-trigger-width)] rounded-md border border-gray-300 bg-white text-black shadow-lg"
-                    sideOffset={4}
+                    className="w-full min-w-[var(--radix-select-trigger-width)] rounded-md border border-gray-300 bg-white shadow-lg"
+                    sideOffset={5}
                   >
-                    {categories.map((category) => (
-                      <SelectItem key={category.value} value={category.value}>
+                    {categories.map((category, index) => (
+                      <SelectItem key={index} value={category.value} >
                         {category.label}
                       </SelectItem>
                     ))}
