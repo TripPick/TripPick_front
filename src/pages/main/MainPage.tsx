@@ -108,11 +108,20 @@ export default function MainPage() {
                     className="w-full rounded-md border border-gray-300 bg-white text-black px-3 py-1 h-9"
                     size="default"
                   >
-                    <SelectValue placeholder="카테고리 선택" />
+                    <SelectValue placeholder="카테고리 선택">
+                      {" "}
+                      {selectedCategory
+                        ? categories.find(
+                            (cat) => cat.value === selectedCategory
+                          )?.label
+                        : "카테고리 선택"}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent
                     position="popper"
-                    className="w-full min-w-[var(--radix-select-trigger-width)] rounded-md border border-gray-300 bg-white text-black shadow-lg"
+                    // 여기에 w-[var(--radix-select-trigger-width)]를 추가합니다.
+                    // 기존의 w-full min-w-0은 필요 없어지거나, 함께 사용해도 무방합니다.
+                    className="w-[var(--radix-select-trigger-width)] rounded-md border border-gray-300 bg-white text-black shadow-lg"
                     sideOffset={4}
                   >
                     {categories.map((category) => (
