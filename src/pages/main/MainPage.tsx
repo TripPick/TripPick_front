@@ -48,10 +48,10 @@ export default function MainPage() {
   const navigate = useNavigate();
 
   const categories = [
-    { value: "spots", label: "관광지" },
-    { value: "facilities", label: "문화시설" },
-    { value: "festivals", label: "축제/행사" },
-    { value: "courses", label: "여행코스" },
+    { value: "spots", label: "관광지", contentTypeId: 12 },
+    { value: "facilities", label: "문화시설", contentTypeId: 14 },
+    { value: "festivals", label: "축제/행사", contentTypeId: 15 },
+    { value: "courses", label: "여행코스", contentTypeId: 25 },
   ];
 
   const handleSearch = () => {
@@ -101,12 +101,19 @@ export default function MainPage() {
                     className="w-full rounded-md border border-gray-300 bg-white"
                     size="default"
                   >
-                    <SelectValue placeholder="카테고리 선택" />
+                    <SelectValue placeholder="카테고리 선택">
+                      {" "}
+                      {selectedCategory
+                        ? categories.find(
+                            (cat) => cat.value === selectedCategory
+                          )?.label
+                        : "카테고리 선택"}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent
                     position="popper"
-                    className="w-full min-w-[var(--radix-select-trigger-width)] rounded-md border border-gray-300 bg-white shadow-lg"
-                    sideOffset={5}
+                    className="w-[var(--radix-select-trigger-width)] rounded-md border border-gray-300 bg-white text-black shadow-lg"
+                    sideOffset={4}
                   >
                     {categories.map((category, index) => (
                       <SelectItem key={index} value={category.value} >

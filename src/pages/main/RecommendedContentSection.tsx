@@ -1,7 +1,9 @@
 import ContentGrid from "@/components/ContentGrid";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Building, Landmark, MapIcon, PartyPopper } from "lucide-react";
 import { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function RecommendedContentSection() {
   const recommendationData = useMemo(
@@ -11,13 +13,15 @@ export default function RecommendedContentSection() {
           id: 1,
           title: "경복궁",
           addr: "서울 종로구 사직로 161",
-          image: "https://placehold.co/600x400/a78bfa/ffffff?text=Gyeongbokgung",
+          image:
+            "https://placehold.co/600x400/a78bfa/ffffff?text=Gyeongbokgung",
         },
         {
           id: 2,
           title: "남산서울타워",
           addr: "서울 용산구 남산공원길 105",
-          image: "https://placehold.co/600x400/f87171/ffffff?text=N+Seoul+Tower",
+          image:
+            "https://placehold.co/600x400/f87171/ffffff?text=N+Seoul+Tower",
         },
         {
           id: 3,
@@ -29,7 +33,8 @@ export default function RecommendedContentSection() {
           id: 4,
           title: "성산일출봉",
           addr: "제주 서귀포시 성산읍 성산리",
-          image: "https://placehold.co/600x400/fb923c/ffffff?text=Seongsan+Ilchulbong",
+          image:
+            "https://placehold.co/600x400/fb923c/ffffff?text=Seongsan+Ilchulbong",
         },
       ],
       facilities: [
@@ -37,25 +42,29 @@ export default function RecommendedContentSection() {
           id: 5,
           title: "국립중앙박물관",
           addr: "서울 용산구 서빙고로 137",
-          image: "https://placehold.co/600x400/60a5fa/ffffff?text=National+Museum",
+          image:
+            "https://placehold.co/600x400/60a5fa/ffffff?text=National+Museum",
         },
         {
           id: 6,
           title: "예술의전당",
           addr: "서울 서초구 남부순환로 2406",
-          image: "https://placehold.co/600x400/c084fc/ffffff?text=Seoul+Arts+Center",
+          image:
+            "https://placehold.co/600x400/c084fc/ffffff?text=Seoul+Arts+Center",
         },
         {
           id: 7,
           title: "독립기념관",
           addr: "충남 천안시 동남구 목천읍 독립기념관로 1",
-          image: "https://placehold.co/600x400/f472b6/ffffff?text=Independence+Hall",
+          image:
+            "https://placehold.co/600x400/f472b6/ffffff?text=Independence+Hall",
         },
         {
           id: 8,
           title: "부산시립미술관",
           addr: "부산 해운대구 APEC로 58",
-          image: "https://placehold.co/600x400/4ade80/ffffff?text=Busan+Museum+of+Art",
+          image:
+            "https://placehold.co/600x400/4ade80/ffffff?text=Busan+Museum+of+Art",
         },
       ],
       festivals: [
@@ -69,19 +78,22 @@ export default function RecommendedContentSection() {
           id: 10,
           title: "진해군항제",
           addr: "경남 창원시 진해구",
-          image: "https://placehold.co/600x400/f9a8d4/ffffff?text=Jinhae+Gunhangje",
+          image:
+            "https://placehold.co/600x400/f9a8d4/ffffff?text=Jinhae+Gunhangje",
         },
         {
           id: 11,
           title: "안동국제탈춤페스티벌",
           addr: "경북 안동시 육사로 239",
-          image: "https://placehold.co/600x400/fdba74/ffffff?text=Andong+Mask+Dance",
+          image:
+            "https://placehold.co/600x400/fdba74/ffffff?text=Andong+Mask+Dance",
         },
         {
           id: 12,
           title: "서울세계불꽃축제",
           addr: "서울 영등포구 여의동로 330",
-          image: "https://placehold.co/600x400/818cf8/ffffff?text=Seoul+Fireworks",
+          image:
+            "https://placehold.co/600x400/818cf8/ffffff?text=Seoul+Fireworks",
         },
       ],
       courses: [
@@ -89,7 +101,8 @@ export default function RecommendedContentSection() {
           id: 13,
           title: "서울 도심 고궁 나들이",
           addr: "서울 종로구 일대",
-          image: "https://placehold.co/600x400/d8b4fe/ffffff?text=Seoul+Palace+Tour",
+          image:
+            "https://placehold.co/600x400/d8b4fe/ffffff?text=Seoul+Palace+Tour",
         },
         {
           id: 14,
@@ -101,25 +114,34 @@ export default function RecommendedContentSection() {
           id: 15,
           title: "부산 해안도로 드라이브",
           addr: "부산 해운대구~기장군",
-          image: "https://placehold.co/600x400/6ee7b7/ffffff?text=Busan+Coastal+Road",
+          image:
+            "https://placehold.co/600x400/6ee7b7/ffffff?text=Busan+Coastal+Road",
         },
         {
           id: 16,
           title: "경주 역사 유적지 탐방",
           addr: "경북 경주시 일대",
-          image: "https://placehold.co/600x400/fca5a5/ffffff?text=Gyeongju+Historic",
+          image:
+            "https://placehold.co/600x400/fca5a5/ffffff?text=Gyeongju+Historic",
         },
       ],
     }),
     []
   );
+  const navigate = useNavigate();
+
+  const handleButton = () => {
+    navigate("/type-filter");
+  };
 
   return (
     <section id="recommendations" className="pt-16 bg-secondary/50">
       <div className="container mx-auto px-4 md:px-6 py-16">
         <div className="text-center">
           <h2 className="text-3xl font-bold">타입별 추천 정보</h2>
-          <p className="text-muted-foreground mt-2">다양한 유형의 여행 정보를 확인하고 다음 여행을 계획해보세요.</p>
+          <p className="text-muted-foreground mt-2">
+            다양한 유형의 여행 정보를 확인하고 다음 여행을 계획해보세요.
+          </p>
         </div>
         <div className="mt-12">
           <Tabs defaultValue="spots">
@@ -154,7 +176,23 @@ export default function RecommendedContentSection() {
               <ContentGrid items={recommendationData.courses} />
             </TabsContent>
           </Tabs>
+          <div className="flex justify-end mt-8">
+            <Button
+              variant="secondary"
+              onClick={handleButton}
+              className="bg-gray-200 text-gray-700 px-4 py-2 rounded shadow-md hover:bg-gray-300"
+            >
+              더보기
+            </Button>
+          </div>
         </div>
+        {/* <Button
+          variant="secondary"
+          onClick={handleButton}
+          className="fixed bottom-4 right-4 bg-gray-200 text-gray-700 px-4 py-2 rounded shadow-md hover:bg-gray-300"
+        >
+          더보기
+        </Button> */}
       </div>
     </section>
   );
