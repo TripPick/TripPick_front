@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { userSchemas, userDefaultValues, type LoginPayload } from "../register/user";
 import { loginUser } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
+import KakaoLoginButton from "./KakaoLoginButton";
 
 /**
  * 로그인 페이지 컴포넌트
@@ -85,7 +86,7 @@ export default function Login() {
             {/* 소셜 로그인 버튼 */}
             <div className="flex flex-col space-y-2">
               <Button type="button" variant="outline">Google로 로그인</Button>
-              <Button type="button" variant="outline">Kakao로 로그인</Button>
+              <KakaoLoginButton />
             </div>
             <div className="relative">
               <div className="absolute inset-0 flex items-center">

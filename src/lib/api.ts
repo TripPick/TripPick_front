@@ -67,6 +67,15 @@ export interface EmailVerifyRequest {
 }
 
 /**
+ * 사용자 정보 응답 데이터 타입
+ */
+export interface UserInfoResponse {
+  userId: string;
+  userName: string;
+  profileImageUrl?: string;
+}
+
+/**
  * 공통 API 호출 함수
  * @param endpoint API 엔드포인트
  * @param options fetch 옵션
@@ -228,4 +237,43 @@ export function getAccessToken(): string | null {
  */
 export function getRefreshToken(): string | null {
   return localStorage.getItem('refreshToken');
+}
+
+/**
+ * 카카오 로그인 API 호출
+ * @param accessToken 카카오 액세스 토큰
+ * @returns JWT 토큰
+ */
+export async function kakaoLogin(accessToken: string): Promise<{ token: string }> {
+  const response = await fetch(`${API_BASE_URL}/api/user/v1/auth/kakao`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ accessToken }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || `HTTP error! status: ${response.status}`);
+  }
+
+  const data = await response.json();
+  return data;
+}
+
+/**
+ * 카카오 사용자 정보 조회 API 호출
+ * @param userId 사용자 ID (카카오 이메일)
+ * @returns 사용자 정보
+ */
+export async function getUserInfo(userId: string): Promise<UserInfoResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/user/v1/auth/user/info?userId=${encodeURIComponent(userId)}`);
+  
+  if (!response.ok) {
+    throw new Error(`사용자 정보 조회 실패: ${response.status}`);
+  }
+  
+  const data = await response.json();
+  return data;
 } 

@@ -12,7 +12,7 @@ interface HeaderProps {
 }
 
 export default function Header({ handleScrollTo, navigate, toggleTheme }: HeaderProps) {
-  const { isAuthenticated, userId, logout } = useAuth();
+  const { isAuthenticated, userId, userName, logout } = useAuth();
 
   /**
    * 로그아웃 처리
@@ -28,6 +28,9 @@ export default function Header({ handleScrollTo, navigate, toggleTheme }: Header
       navigate("/");
     }
   };
+
+  // 표시할 사용자 이름 결정 (카카오 이름이 있으면 카카오 이름, 없으면 userId)
+  const displayName = userName || userId;
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm">
@@ -83,7 +86,7 @@ export default function Header({ handleScrollTo, navigate, toggleTheme }: Header
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2 text-sm">
                 <User className="h-4 w-4" />
-                <span className="hidden sm:inline">{userId}</span>
+                <span className="hidden sm:inline">{displayName}</span>
               </div>
               <Button 
                 variant="ghost" 
