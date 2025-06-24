@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import { getAccessToken, clearTokens, logoutUser } from '@/lib/api';
+import { getAccessToken, clearTokens, logoutUser, getUserInfo, type UserInfoResponse } from '@/lib/api';
 
 /**
  * 인증 상태 인터페이스
@@ -9,6 +9,7 @@ interface AuthState {
   isAuthenticated: boolean;
   accessToken: string | null;
   userId: string | null;
+  userName: string | null;
 }
 
 /**
@@ -18,6 +19,7 @@ interface AuthContextType extends AuthState {
   login: (accessToken: string, refreshToken: string) => void;
   logout: () => Promise<void>;
   checkAuthStatus: () => boolean;
+  updateUserInfo: () => Promise<void>;
 }
 
 /**
@@ -30,7 +32,7 @@ function extractUserIdFromToken(token: string): string | null {
     // JWT 토큰의 payload 부분을 디코딩
     const payload = token.split('.')[1];
     const decodedPayload = JSON.parse(atob(payload));
-    return decodedPayload.userId || null;
+    return decodedPayload.sub || decodedPayload.userId || null;
   } catch (error) {
     console.error('토큰에서 사용자 ID 추출 실패:', error);
     return null;
@@ -66,7 +68,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isAuthenticated: false,
     accessToken: null,
     userId: null,
+    userName: null,
   });
+
+  /**
+   * 사용자 정보 업데이트
+   */
+  const updateUserInfo = async (): Promise<void> => {
+    if (!authState.userId) return;
+    
+    try {
+      const userInfo: UserInfoResponse = await getUserInfo(authState.userId);
+      setAuthState(prev => ({
+        ...prev,
+        userName: userInfo.userName,
+      }));
+    } catch (error) {
+      console.error('사용자 정보 조회 실패:', error);
+      // 사용자 정보 조회에 실패해도 로그인 상태는 유지
+    }
+  };
 
   /**
    * 인증 상태를 확인하는 함수
@@ -79,6 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: false,
         accessToken: null,
         userId: null,
+        userName: null,
       });
       return false;
     }
@@ -94,7 +116,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAuthenticated: true,
       accessToken: token,
       userId,
+      userName: null, // 사용자 정보는 별도로 조회
     });
+    
+    // 사용자 정보 조회
+    if (userId) {
+      updateUserInfo();
+    }
+    
     return true;
   };
 
@@ -111,7 +140,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAuthenticated: true,
       accessToken,
       userId,
+      userName: null, // 사용자 정보는 별도로 조회
     });
+    
+    // 사용자 정보 조회
+    if (userId) {
+      updateUserInfo();
+    }
   };
 
   /**
@@ -135,6 +170,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: false,
         accessToken: null,
         userId: null,
+        userName: null,
       });
     }
   };
@@ -162,6 +198,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     login,
     logout,
     checkAuthStatus,
+    updateUserInfo,
   };
 
   return (
