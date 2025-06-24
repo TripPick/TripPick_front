@@ -1,10 +1,10 @@
 import { useState } from "react";
 import ContentGrid from "./ContentGrid";
 import { Button } from "@/components/ui/button";
+import type { SearchDto } from "@/api/search";
 
-type Spot = { id: number; title: string; addr: string; image: string };
 interface PagedContentGridProps {
-  items: Spot[]; // 배열 타입 명시
+  items: SearchDto[]; // 배열 타입 명시
   itemsPerPage?: number; // optional + 기본값 있음
 }
 
