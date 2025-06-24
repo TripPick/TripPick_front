@@ -5,6 +5,7 @@ import Layout from "./layouts/Layout";
 import TypeFilterPage from "./pages/typeFilterPage";
 import MainPage from "./pages/main/MainPage";
 import { AuthProvider } from "./contexts/AuthContext";
+import './App.css';
 import ApiTestPage from "@/pages/apiTestPageg";
 
 function App() {
