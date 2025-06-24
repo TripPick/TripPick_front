@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun, User, LogOut } from "lucide-react";
 import type React from "react";
 import { Link, type NavigateFunction } from "react-router-dom";
 import Logo from "@/assets/logo.png";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface HeaderProps {
   handleScrollTo: (e: React.MouseEvent<HTMLAnchorElement>, id: string) => void;
@@ -11,6 +12,23 @@ interface HeaderProps {
 }
 
 export default function Header({ handleScrollTo, navigate, toggleTheme }: HeaderProps) {
+  const { isAuthenticated, userId, logout } = useAuth();
+
+  /**
+   * 로그아웃 처리
+   */
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/");
+      // console.log("로그아웃 완료");
+    } catch (error) {
+      console.error("로그아웃 중 오류 발생:", error);
+      // 오류가 발생해도 메인 페이지로 이동
+      navigate("/");
+    }
+  };
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
@@ -61,8 +79,32 @@ export default function Header({ handleScrollTo, navigate, toggleTheme }: Header
             <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:-rotate-0 dark:scale-100" />
             <span className="sr-only">테마 변경</span>
           </Button>
-          <Button variant="ghost">로그인</Button>
-          <Button>회원가입</Button>
+          {isAuthenticated ? (
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 text-sm">
+                <User className="h-4 w-4" />
+                <span className="hidden sm:inline">{userId}</span>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={handleLogout}
+                className="flex items-center gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                <span className="hidden sm:inline">로그아웃</span>
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" onClick={() => navigate("/login")}>
+                로그인
+              </Button>
+              <Button onClick={() => navigate("/register")}>
+                회원가입
+              </Button>
+            </div>
+          )}
         </div>
       </div>
       <hr className="border-border" />
