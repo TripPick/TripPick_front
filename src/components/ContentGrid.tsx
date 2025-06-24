@@ -1,20 +1,19 @@
 import { MapPin } from "lucide-react";
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
-
-type Spot = { id: number; title: string; addr: string; image: string };
+import type { SearchDto } from "@/api/search";
 
 interface ContentGridProps {
-  items: Spot[];
+  items: SearchDto[];
 }
 
 export default function ContentGrid({ items }: ContentGridProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
-      {items.map((item: { id: number; image: string; title: string; addr: string }) => (
-        <Card key={item.id} className="overflow-hidden group">
+      {items.map((item) => (
+        <Card key={item.contentId} className="overflow-hidden group">
           <div className="relative aspect-video -m-10">
             <img
-              src={item.image}
+              src={item.firstimage}
               alt={item.title}
               className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
             />
@@ -23,7 +22,7 @@ export default function ContentGrid({ items }: ContentGridProps) {
             <CardTitle className="truncate mt-12">{item.title}</CardTitle>
             <CardDescription className="flex items-center pt-1">
               <MapPin className="h-4 w-4 mr-1.5 flex-shrink-0" />
-              <span className="truncate">{item.addr}</span>
+              <span className="truncate">{item.addr1}</span>
             </CardDescription>
           </CardHeader>
         </Card>

@@ -54,10 +54,10 @@ export default function MainPage() {
   const navigate = useNavigate();
 
   const categories = [
-    { value: "spots", label: "관광지" },
-    { value: "facilities", label: "문화시설" },
-    { value: "festivals", label: "축제/행사" },
-    { value: "courses", label: "여행코스" },
+    { value: "spots", label: "관광지", contentTypeId: 12 },
+    { value: "facilities", label: "문화시설", contentTypeId: 14 },
+    { value: "festivals", label: "축제/행사", contentTypeId: 15 },
+    { value: "courses", label: "여행코스", contentTypeId: 25 },
   ];
 
   const handleSearch = () => {
