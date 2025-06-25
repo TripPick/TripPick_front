@@ -8,6 +8,7 @@ import type {
   FestivalInfo,
   SearchFilterRequest,
   TourCourseInfo,
+  TourCourseItem,
   TourSpotInfo,
 } from "@/api/Dto";
 
@@ -121,6 +122,24 @@ export const searchApi = {
               detailData = {
                 ...detailData,
                 tourCourseInfo: tourCourseRes.data.data,
+              };
+            }
+            // TourCourseItemController의 getTourCourseById를 호출
+            const tourCourseItemRes = await apiClient.get<
+              // 변수명 변경 (tourCourseItem -> tourCourseItemRes)
+              ApiResponseDto<TourCourseItem> // 백엔드에서 반환하는 타입에 맞게 DTO 타입 변경
+            >(
+              `/touritems/${contentId}` // 백엔드의 @RequestMapping("/api/touritems")와 매핑
+            );
+
+            if (
+              tourCourseItemRes.data.code === "OK" &&
+              tourCourseItemRes.data.data
+            ) {
+              // tourCourseRes -> tourCourseItemRes로 변경
+              detailData = {
+                ...detailData,
+                tourCourseItem: tourCourseItemRes.data.data, // detailData에 tourCourseItemInfo 추가
               };
             }
             break;

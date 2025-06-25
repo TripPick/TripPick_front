@@ -107,13 +107,30 @@ export interface TourCourseInfo {
   theme: string;
 }
 
+export interface TourCourseItemData {
+  contentid: string;
+  subcontentid?: string;
+  subdetailalt?: string;
+  subdetailimg?: string;
+  subdetailoverview?: string;
+  subname?: string;
+  subnum?: string;
+}
+
+export interface TourCourseItem extends TourCourseItemData {
+  distance?: string;
+  taketime?: string;
+  theme?: string;
+  schedule?: string;
+}
+
 /**
  * 검색 결과 및 상세 정보에 공통적으로 사용되는 기본 필드 DTO
  * `/api/search/filter` 응답의 배열 내 각 객체와
  * `/api/search/{contentId}` 응답의 data 필드에 해당합니다.
  */
 export interface CommonContentDto {
-  contentId: string;
+  contentid: string;
   contenttypeid: string;
   cat1: string;
   cat2: string;
@@ -140,6 +157,8 @@ export interface CommonContentDto {
   culturalFacilityInfo?: CulturalFacilityInfo;
   festivalInfo?: FestivalInfo;
   tourCourseInfo?: TourCourseInfo;
+  tourCourseItem?: TourCourseItem;
+  tourCourseItemData?: TourCourseItemData;
 }
 
 /**

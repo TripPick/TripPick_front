@@ -9,6 +9,7 @@ import {
   CulturalFacilityInfoContent,
   FestivalInfoContent,
   TourCourseInfoContent,
+  TourCourseItemContent,
 } from "@/pages/DetailPage/AdditionalContent";
 import searchApi from "@/api/search";
 import type { DetailDto } from "@/api/Dto";
@@ -89,6 +90,11 @@ export default function DetailPage() {
             {itemDetail.festivalInfo && (
               <InfoToggleSection title="축제 정보">
                 <FestivalInfoContent info={itemDetail.festivalInfo} />
+              </InfoToggleSection>
+            )}
+            {itemDetail.tourCourseItem && (
+              <InfoToggleSection title="관광 코스 개요">
+                <TourCourseItemContent info={itemDetail.tourCourseItem} />
               </InfoToggleSection>
             )}
             {itemDetail.tourCourseInfo && (

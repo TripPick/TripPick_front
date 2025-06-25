@@ -12,9 +12,9 @@ export default function ContentGrid({ items }: ContentGridProps) {
 
   const handleCardClick = (item: CommonContentDto) => {
     // contentId가 존재할 때만 이동
-    if (item.contentId) {
+    if (item.contentid) {
       // DTO에 contentId로 정의되어 있다면 이것을 사용.
-      navigate(`/detail-page/${item.contentId}`);
+      navigate(`/detail-page/${item.contentid}`);
     } else {
       console.warn("Content ID가 없어 상세 페이지로 이동할 수 없습니다.", item);
       // contentId가 없을 경우 사용자에게 알리거나 다른 처리 (예: 경고 메시지 표시)
@@ -23,8 +23,8 @@ export default function ContentGrid({ items }: ContentGridProps) {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8 items-start">
-      {items.map((item, index) => {
-        const key = item.contentId || `${item.title || "no-title"}-${index}`;
+      {items.map((item) => {
+        const key = item.contentid;
         const imageUrl =
           item.firstimage || item.firstimage2 || "/src/assets/logo.png";
         const title = item.title || "제목 없음";

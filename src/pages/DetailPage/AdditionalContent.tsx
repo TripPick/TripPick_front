@@ -3,6 +3,8 @@ import type {
   CulturalFacilityInfo,
   FestivalInfo,
   TourCourseInfo,
+  TourCourseItem,
+  TourCourseItemData,
 } from "@/api/Dto";
 import React from "react";
 
@@ -142,9 +144,49 @@ const TourCourseInfoContent: React.FC<{ info: TourCourseInfo }> = ({
   </div>
 );
 
+// TourCourseInfoContent 컴포넌트
+const TourCourseItemContent: React.FC<{ info: TourCourseItemData }> = ({
+  info,
+}) => (
+  <div className="space-y-2 text-base p-4 border rounded-lg shadow-md bg-white font-inter">
+    {info.subname && (
+      <p className="text-gray-800">
+        <strong className="font-semibold text-gray-900">코스명:</strong>{" "}
+        {info.subname}
+      </p>
+    )}
+    {info.subdetailoverview && (
+      <p className="text-gray-800 leading-relaxed">
+        <strong className="font-semibold text-gray-900">코스 개요:</strong>{" "}
+        {info.subdetailoverview}
+      </p>
+    )}
+    {info.subdetailimg && (
+      <div className="flex justify-center items-center py-2">
+        <img
+          src={info.subdetailimg || "/src/assets/logo.png"}
+          alt={info.subdetailalt || "코스 이미지"}
+          className="rounded-xl object-cover w-full max-w-lg h-auto max-h-80 shadow-lg transition-transform duration-300 hover:scale-105"
+          onError={(e) => {
+            e.currentTarget.src =
+              "https://placehold.co/600x400/CCCCCC/000000?text=이미지%20없음";
+            e.currentTarget.alt = "이미지 없음";
+          }}
+        />
+      </div>
+    )}
+    {info.subdetailalt && info.subdetailimg && (
+      <p className="text-sm text-gray-600 text-center italic mt-1">
+        <em>(이미지 설명: {info.subdetailalt})</em>
+      </p>
+    )}
+  </div>
+);
+
 export {
   TourSpotInfoContent,
   CulturalFacilityInfoContent,
   FestivalInfoContent,
   TourCourseInfoContent,
+  TourCourseItemContent,
 };
