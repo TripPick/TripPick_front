@@ -1,48 +1,16 @@
 import InputWithIcon from "@/components/InputWithIcon";
 import { Button } from "@/components/ui/button";
 import {
-  Hotel,
   MapPin,
-  Mountain,
   Search,
-  UserPlus,
-  UtensilsCrossed,
 } from "lucide-react";
 import RecommendedContentSection from "./RecommendedContentSection";
 import { useMemo, useState } from "react";
-import TravelSession from "./TravelSession";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
 
 export default function MainPage() {
-  const travelThemes = useMemo(
-    () => [
-      {
-        title: "힐링 & 휴식",
-        icon: <Hotel className="w-8 h-8" />,
-        color:
-          "bg-emerald-100 dark:bg-emerald-900 text-emerald-600 dark:text-emerald-300",
-      },
-      {
-        title: "미식 탐방",
-        icon: <UtensilsCrossed className="w-8 h-8" />,
-        color:
-          "bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-300",
-      },
-      {
-        title: "자연 & 모험",
-        icon: <Mountain className="w-8 h-8" />,
-        color: "bg-sky-100 dark:bg-sky-900 text-sky-600 dark:text-sky-300",
-      },
-      {
-        title: "도시 & 문화",
-        icon: <UserPlus className="w-8 h-8" />,
-        color:
-          "bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300",
-      },
-    ],
-    []
-  );
+ 
   const [selectedCategory, setSelectedCategory] = useState("");
   const [keyword, setKeyword] = useState("");
   const navigate = useNavigate();
@@ -151,7 +119,6 @@ export default function MainPage() {
         </div>
       </section>
       <RecommendedContentSection />
-      <TravelSession travelThemes={travelThemes} />
     </>
   );
 }

@@ -29,7 +29,7 @@ export default function TabList({
   };
 
   return (
-    <section id="recommendations" className="pt-16 bg-secondary/50">
+    <section id="recommendations" className="pt-16">
       <div className="container max-w-5xl mx-auto px-4 py-8 ">
         <div className="mt-6"></div>
         <Tabs value={selectedCategory} onValueChange={onSelectCategory}>

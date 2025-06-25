@@ -25,12 +25,12 @@ export default function PagedContentGrid({
       <ContentGrid items={pagedItems} />
 
       {/* 페이지 버튼 */}
-      <div className="flex justify-center gap-2">
+      <div className="flex justify-center gap-2 mb-10">
         {Array.from({ length: totalPages }).map((_, idx) => (
           <Button
             key={idx}
             onClick={() => setCurrentPage(idx + 1)}
-            className={`px-4 py-2 border rounded ${
+            className={`px-4 py-2 border rounded text-black hover:text-white cursor-pointer ${
               currentPage === idx + 1 ? "bg-primary text-white" : "bg-gray-100"
             }`}
           >

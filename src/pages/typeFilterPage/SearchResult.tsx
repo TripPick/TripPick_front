@@ -79,8 +79,8 @@ export default function SearchResult() {
 
   return (
     <>
-      <div className="space-y-6 max-w-5xl mx-auto px-4 flex flex-col justify-start">
-        <h3 className="text-xl font-semibold mb-4">검색 결과</h3>
+      <div className="space-y-6 max-w-5xl mx-auto px-4 flex flex-col justify-start ">
+        <h3 className="text-xl font-semibold my-4">검색 결과</h3>
 
         {isLoading && (
           <div className="text-center py-8">

@@ -10,7 +10,7 @@ interface UseAreaCodesResult {
 }
 
 // 시/도 목록을 가져오는 훅
-export function useSidoCodes(): UseAreaCodesResult {
+export function useSidoCodes(isAll=true): UseAreaCodesResult {
   const [data, setData] = useState<AreaCodeItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -23,13 +23,17 @@ export function useSidoCodes(): UseAreaCodesResult {
         const result = await areaApi.getAreaCodes(null);
 
         // --- 여기에 "전체" 항목 추가 ---
-        const allOption: AreaCodeItem = {
-          rnum: 0, // 고유한 값 (API 응답과 겹치지 않게)
-          code: "_ALL_", // 중요: "전체"를 나타내는 고유한 코드 (빈 문자열이 일반적)
-          name: "전체", // 또는 "선택 안 함", "시/도 선택" 등
-        };
+        let allOption: AreaCodeItem
+        if(isAll){
+          allOption = {
+            rnum: 0, // 고유한 값 (API 응답과 겹치지 않게)
+            code: "_ALL_", // 중요: "전체"를 나타내는 고유한 코드 (빈 문자열이 일반적)
+            name: "전체", // 또는 "선택 안 함", "시/도 선택" 등
+          };
+          setData([allOption, ...result]);
+        }
+        setData([...result]);
         // API 결과 앞에 "전체" 옵션을 추가합니다.
-        setData([allOption, ...result]);
       } catch (err) {
         setError(err as Error);
       } finally {

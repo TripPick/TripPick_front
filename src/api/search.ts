@@ -29,7 +29,7 @@ interface ApiResponseDto<T> {
 export const searchApi = {
   // 백엔드 API 호출 및 데이터 반환
   _internalSearchRaw: (params: SearchParams) =>
-    apiClient.get<ApiResponseDto<any[]>>("/contents", { params }),
+    apiClient.get<ApiResponseDto<any[]>>("/search", { params }),
 
   getDistinctCat1: () => apiClient.get<ApiResponseDto<string[]>>("/cat1"),
 

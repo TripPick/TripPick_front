@@ -62,16 +62,8 @@ export default function Header({ handleScrollTo, navigate, toggleTheme }: Header
             추천 정보
           </Link>
           <Link
-            to="/#themes"
+            to="/aiplanner"
             className="text-sm font-medium hover:underline"
-            onClick={(e) => handleScrollTo(e, "themes")}
-          >
-            테마별 여행
-          </Link>
-          <Link
-            to="/#ai-planner"
-            className="text-sm font-medium hover:underline"
-            onClick={(e) => handleScrollTo(e, "ai-planner")}
           >
             AI 플래너
           </Link>
