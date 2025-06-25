@@ -6,12 +6,11 @@ interface ImageSectionProps {
 
 export default function ImageSection({ imageUrl, altText }: ImageSectionProps) {
   return (
-    <div className="relative w-full h-auto aspect-video">
-      {/* Next.js 프로젝트가 아니라면 <Image ... /> 대신 <img src={imageUrl} alt={altText} ... /> 사용 */}
+    <div className="relative w-full h-64 overflow-hidden rounded-lg">
       <img
         src={imageUrl}
         alt={altText}
-        className="max-w-full max-h-full object-contain"
+        className="w-full h-full object-contain"
       />
     </div>
   );

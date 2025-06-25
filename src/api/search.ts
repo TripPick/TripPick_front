@@ -144,6 +144,39 @@ export const searchApi = {
       throw error;
     }
   },
+
+  /**
+   * contentTypeId에 해당하는 랜덤값을 가져오는 함수
+   * GET /api/search/random
+   * @param contentTypeid 랜덤 조회하는 api
+   * @returns DetailDto 객체
+   */
+  getRandomByContentTypeId: async (
+    contentTypeid: string,
+    limit: number = 4
+  ): Promise<CommonContentDto[]> => {
+    try {
+      const response = await apiClient.get<ApiResponseDto<CommonContentDto[]>>(
+        `/search/random?contentTypeId=${contentTypeid}&limit=${limit}` // 백엔드의 getSearchById와 매핑되는 엔드포인트
+      );
+      if (response.data.code === "OK" && response.data.data) {
+        console.log("randomdata", response.data.data);
+        return response.data.data;
+      } else {
+        const errorMessage =
+          response.data.message || "유효하지 않은 API 응답입니다.";
+        throw new Error(
+          `API 응답 오류 (getRandomByContentTypeID - ${contentTypeid}): ${errorMessage}`
+        );
+      }
+    } catch (error) {
+      console.error(
+        `API 호출 중 오류 발생 (getRandomByContentTypeID - ${contentTypeid}):`,
+        error
+      );
+      throw error;
+    }
+  },
 };
 
 export default searchApi;
