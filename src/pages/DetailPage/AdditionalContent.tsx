@@ -1,10 +1,10 @@
-import React from "react";
 import type {
   TourSpotInfo,
   CulturalFacilityInfo,
   FestivalInfo,
   TourCourseInfo,
-} from "@/pages/DetailPage/DetailDto";
+} from "@/api/Dto";
+import React from "react";
 
 const TourSpotInfoContent: React.FC<{ info: TourSpotInfo }> = ({ info }) => (
   <div className="space-y-2 text-base">

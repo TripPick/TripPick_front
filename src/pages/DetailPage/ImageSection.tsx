@@ -11,7 +11,7 @@ export default function ImageSection({ imageUrl, altText }: ImageSectionProps) {
       <img
         src={imageUrl}
         alt={altText}
-        className="rounded-lg shadow-lg w-full h-full object-cover"
+        className="max-w-full max-h-full object-contain"
       />
     </div>
   );

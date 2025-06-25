@@ -1,3 +1,4 @@
+// src/components/searchFilter/SearchFilter.tsx
 import { useEffect, useState } from "react";
 import {
   Select,
@@ -8,15 +9,13 @@ import {
 } from "@/components/ui/select";
 import { type CategoryType } from "@/pages/typeFilterPage/categoryType";
 
-// 새롭게 생성한 Custom Hook 임포트
-import { useSidoCodes, useSigunguCodes } from "@/hook/useAreaCodes";
+import { useSidoCodes, useSigunguCodes } from "@/hook/useAreaCodes"; // useAreaCodes 훅 임포트
 import { useCategoryCodes } from "@/hook/useCategoryCodes";
 
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
-// 새롭게 정의된 Custom DTO 임포트
 import type { SearchFilterRequest } from "@/api/Dto";
 
 interface SearchFilterProps {
@@ -31,62 +30,77 @@ export default function SearchFilter({
   onSearch,
 }: SearchFilterProps) {
   const [conditions, setConditions] = useState<SearchFilterRequest>(() => ({
-    contentTypeId:
-      initialConditions.contentTypeId || selectedCategory.contentTypeId,
-    cat1: initialConditions.cat1 || "",
-    cat2: initialConditions.cat2 || "",
-    cat3: initialConditions.cat3 || "",
-    lDongRegnCd: initialConditions.lDongRegnCd || "_ALL_", // 초기값에 "_ALL_" 적용
-    lDongSigunguCd: initialConditions.lDongSigunguCd || "_ALL_", // 초기값에 "_ALL_" 적용
+    contentTypeid:
+      initialConditions.contentTypeid || selectedCategory.contentTypeId,
+    cat1: initialConditions.cat1 || "_ALL_",
+    cat2: initialConditions.cat2 || "_ALL_",
+    cat3: initialConditions.cat3 || "_ALL_",
+    // areaCode를 URL에서 가져오거나 "_ALL_"로 초기화
+    areaCode: initialConditions.areaCode || "_ALL_",
+    // lDongSigunguCd는 areaCode에 종속적이므로, areaCode가 _ALL_이면 이도 _ALL_로
+    lDongSigunguCd: initialConditions.lDongSigunguCd || "_ALL_",
     title: initialConditions.title || "",
   }));
 
   // ---------------------- Custom Hook 사용 ----------------------
-  // 지역 코드
+  // 지역 코드 (시/도는 useSidoCodes로, areaCode와 매핑)
   const {
     data: sidoList,
     isLoading: isSidoLoading,
     error: sidoError,
   } = useSidoCodes();
+
+  // 시/군/구는 areaCode에 종속적으로 가져옴
   const {
     data: sigunguList,
     isLoading: isSigunguLoading,
     error: sigunguError,
-  } = useSigunguCodes(conditions.lDongRegnCd);
+  } = useSigunguCodes(
+    typeof conditions.areaCode === "string" && conditions.areaCode !== "_ALL_"
+      ? conditions.areaCode
+      : null
+  );
 
-  // 카테고리 코드
+  // 카테고리 코드 (contentTypeid는 소문자 유지)
   const {
     data: mainCategoryList,
     isLoading: isMainCategoryLoading,
     error: mainCategoryError,
-  } = useCategoryCodes(selectedCategory.contentTypeId, null, null);
+  } = useCategoryCodes(conditions.contentTypeid, null, null);
   const {
     data: middleCategoryList,
     isLoading: isMiddleCategoryLoading,
     error: middleCategoryError,
-  } = useCategoryCodes(selectedCategory.contentTypeId, conditions.cat1, null);
+  } = useCategoryCodes(
+    conditions.contentTypeid,
+    conditions.cat1 !== "_ALL_" ? conditions.cat1 : null,
+    null
+  );
   const {
     data: detailCategoryList,
     isLoading: isDetailCategoryLoading,
     error: detailCategoryError,
   } = useCategoryCodes(
-    selectedCategory.contentTypeId,
-    conditions.cat1,
-    conditions.cat2
+    conditions.contentTypeid,
+    conditions.cat1 !== "_ALL_" ? conditions.cat1 : null,
+    conditions.cat2 !== "_ALL_" ? conditions.cat2 : null
   );
 
-  // URL 파라미터 변경 시 conditions 상태를 업데이트
+  // URL 파라미터 변경 시 conditions 상태를 업데이트 (initialConditions 변경 감지)
   useEffect(() => {
-    setConditions({
-      contentTypeId:
-        initialConditions.contentTypeId || selectedCategory.contentTypeId,
-      cat1: initialConditions.cat1 || "",
-      cat2: initialConditions.cat2 || "",
-      cat3: initialConditions.cat3 || "",
-      lDongRegnCd: initialConditions.lDongRegnCd || "_ALL_", // 초기값에 "_ALL_" 적용
-      lDongSigunguCd: initialConditions.lDongSigunguCd || "_ALL_", // 초기값에 "_ALL_" 적용
+    setConditions((prev) => ({
+      ...prev,
+      contentTypeid:
+        initialConditions.contentTypeid || selectedCategory.contentTypeId,
+      cat1: initialConditions.cat1 || "_ALL_",
+      cat2: initialConditions.cat2 || "_ALL_",
+      cat3: initialConditions.cat3 || "_ALL_",
+      // areaCode를 URL에서 가져오거나 "_ALL_"로 처리
+      areaCode: initialConditions.areaCode || "_ALL_",
+      // lDongSigunguCd는 areaCode에 종속적이므로, areaCode가 _ALL_이면 이도 _ALL_로
+      lDongSigunguCd: initialConditions.lDongSigunguCd || "_ALL_",
       title: initialConditions.title || "",
-    });
+    }));
   }, [initialConditions, selectedCategory]);
 
   // 대분류 변경 시 중/소분류 초기화
@@ -94,31 +108,21 @@ export default function SearchFilter({
     if (conditions.cat1 !== initialConditions.cat1) {
       setConditions((prev) => ({
         ...prev,
-        cat2: "",
-        cat3: "",
+        cat2: "_ALL_",
+        cat3: "_ALL_",
       }));
     }
   }, [conditions.cat1, initialConditions.cat1]);
 
-  // 중분류 변경 시 소분류 초기화
+  // areaCode(시/도) 변경 시 lDongSigunguCd(시/군/구) 초기화
   useEffect(() => {
-    if (conditions.cat2 !== initialConditions.cat2) {
+    if (conditions.areaCode !== initialConditions.areaCode) {
       setConditions((prev) => ({
         ...prev,
-        cat3: "",
+        lDongSigunguCd: "_ALL_",
       }));
     }
-  }, [conditions.cat2, initialConditions.cat2]);
-
-  // 시/도 변경 시 시/군/구 초기화
-  useEffect(() => {
-    if (conditions.lDongRegnCd !== initialConditions.lDongRegnCd) {
-      setConditions((prev) => ({
-        ...prev,
-        lDongSigunguCd: "_ALL_", // 시/도 변경 시 시/군/구 초기화 값을 "_ALL_"로 변경
-      }));
-    }
-  }, [conditions.lDongRegnCd, initialConditions.lDongRegnCd]);
+  }, [conditions.areaCode, initialConditions.areaCode]); // lDongRegnCd 대신 areaCode를 의존성으로
 
   // Select 박스 등의 값 변경 핸들러
   const handleSelectChange =
@@ -159,7 +163,7 @@ export default function SearchFilter({
           <h3 className="text-xl font-semibold">상세필터</h3>
 
           <div className="flex flex-wrap gap-4">
-            {/* 대분류 Select (카테고리는 일반적으로 "전체"를 사용하지 않음) */}
+            {/* 대분류 Select */}
             <div className="flex flex-col">
               <Select
                 value={conditions.cat1}
@@ -192,7 +196,7 @@ export default function SearchFilter({
                 value={conditions.cat2}
                 onValueChange={handleSelectChange("cat2")}
                 disabled={
-                  !conditions.cat1 ||
+                  conditions.cat1 === "_ALL_" ||
                   isMiddleCategoryLoading ||
                   middleCategoryList.length === 0
                 }
@@ -221,7 +225,7 @@ export default function SearchFilter({
                 value={conditions.cat3}
                 onValueChange={handleSelectChange("cat3")}
                 disabled={
-                  !conditions.cat2 ||
+                  conditions.cat2 === "_ALL_" ||
                   isDetailCategoryLoading ||
                   detailCategoryList.length === 0
                 }
@@ -244,18 +248,16 @@ export default function SearchFilter({
               </Select>
             </div>
 
-            {/* 지역 Selects */}
+            {/* 지역 Selects (areaCode - 시/도 역할) */}
             <div className="flex flex-col">
               <Select
-                value={conditions.lDongRegnCd}
-                onValueChange={handleSelectChange("lDongRegnCd")}
+                value={conditions.areaCode} // areaCode 사용
+                onValueChange={handleSelectChange("areaCode")} // areaCode 핸들러
                 disabled={isSidoLoading}
               >
                 <SelectTrigger className="w-[180px]">
                   <SelectValue
-                    placeholder={
-                      isSidoLoading ? "로딩 중..." : "법정동시도 선택"
-                    }
+                    placeholder={isSidoLoading ? "로딩 중..." : "시/도 선택"}
                   />
                 </SelectTrigger>
                 <SelectContent>
@@ -268,13 +270,13 @@ export default function SearchFilter({
               </Select>
             </div>
 
+            {/* 시/군/구 Selects (lDongSigunguCd) */}
             <div className="flex flex-col">
               <Select
                 value={conditions.lDongSigunguCd}
                 onValueChange={handleSelectChange("lDongSigunguCd")}
                 disabled={
-                  !conditions.lDongRegnCd ||
-                  conditions.lDongRegnCd === "_ALL_" || // "전체"가 선택되면 시군구 비활성화
+                  conditions.areaCode === "_ALL_" || // areaCode가 전체이면 시군구 비활성화
                   isSigunguLoading ||
                   sigunguList.length === 0
                 }
@@ -282,12 +284,11 @@ export default function SearchFilter({
                 <SelectTrigger className="w-[180px]">
                   <SelectValue
                     placeholder={
-                      isSigunguLoading ? "로딩 중..." : "법정동시군구 선택"
+                      isSigunguLoading ? "로딩 중..." : "시/군/구 선택"
                     }
                   />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="_ALL_">전체</SelectItem>
                   {sigunguList.map((sigunguItem) => (
                     <SelectItem key={sigunguItem.code} value={sigunguItem.code}>
                       {sigunguItem.name}

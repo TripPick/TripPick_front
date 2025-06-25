@@ -21,7 +21,7 @@ function App() {
               <Route path="register" element={<SignUpPage />} />
               <Route path="type-filter" element={<TypeFilterPage />} />
               <Route path="apitest" element={<ApiTestPage />} />
-              <Route path="resultDetail/:contentId" element={<DetailPage />} />
+              <Route path="detail-page/:contentId" element={<DetailPage />} />
             </Route>
           </Routes>
         </div>

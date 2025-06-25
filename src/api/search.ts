@@ -3,8 +3,12 @@ import axios from "axios";
 import type {
   ApiResponseDto,
   CommonContentDto,
+  CulturalFacilityInfo,
   DetailDto,
+  FestivalInfo,
   SearchFilterRequest,
+  TourCourseInfo,
+  TourSpotInfo,
 } from "@/api/Dto";
 
 export const searchApi = {
@@ -52,36 +56,91 @@ export const searchApi = {
    */
   getDetailById: async (contentId: string): Promise<DetailDto> => {
     try {
+      // 1단계: 기본적인 SearchDto (이제 DetailDto로 대체) 정보를 먼저 가져옵니다.
       const response = await apiClient.get<ApiResponseDto<DetailDto>>(
-        `/search/${contentId}`
+        `/search/${contentId}` // 백엔드의 getSearchById와 매핑되는 엔드포인트
       );
 
-      // 백엔드 응답 코드가 "SUCCESS"인지 확인합니다.
-      if (response.data.code === "SUCCESS") {
-        if (response.data.data) {
-          // DetailDto는 백엔드 응답 구조와 일치하도록 설계되었으므로,
-          // 별도의 변환 없이 바로 데이터를 반환합니다.
-          return response.data.data;
-        } else {
-          console.warn(
-            `contentId ${contentId} 에 대한 상세 정보가 없습니다 (getDetailById).`
-          );
-          throw new Error("정보를 찾을 수 없습니다.");
+      if (response.data.code === "OK" && response.data.data) {
+        let detailData: DetailDto = response.data.data; // 기본 정보
+
+        // 2단계: contentTypeId에 따라 추가 상세 정보를 가져옵니다.
+        const contentTypeId = detailData.contenttypeid;
+        console.log("contentTypeId 실제 타입:", typeof contentTypeId);
+        console.log("contentTypeId 실제 값:", contentTypeId);
+
+        switch (contentTypeId) {
+          case "12": // 관광지
+            console.log("관광지 상세 검색 시작");
+            const tourSpotRes = await apiClient.get<
+              ApiResponseDto<TourSpotInfo>
+            >(
+              `/tourspots/${contentId}` // 백엔드의 @RequestMapping("/api/tourspots")와 매핑
+            );
+            if (tourSpotRes.data.code === "OK" && tourSpotRes.data.data) {
+              detailData = {
+                ...detailData,
+                tourSpotInfo: tourSpotRes.data.data,
+              };
+              console.log("관광지 상세정보", detailData);
+            }
+            break;
+          case "14": // 문화시설
+            const culturalRes = await apiClient.get<
+              ApiResponseDto<CulturalFacilityInfo>
+            >(
+              `/culturalfacilities/${contentId}` // 백엔드의 @RequestMapping("/api/culturalfacilities")와 매핑
+            );
+            if (culturalRes.data.code === "OK" && culturalRes.data.data) {
+              detailData = {
+                ...detailData,
+                culturalFacilityInfo: culturalRes.data.data,
+              };
+            }
+            break;
+          case "15": // 축제/공연/행사
+            const festivalRes = await apiClient.get<
+              ApiResponseDto<FestivalInfo>
+            >(
+              `/festivals/${contentId}` // 백엔드의 @RequestMapping("/api/festivals")와 매핑
+            );
+            if (festivalRes.data.code === "OK" && festivalRes.data.data) {
+              detailData = {
+                ...detailData,
+                festivalInfo: festivalRes.data.data,
+              };
+            }
+            break;
+          case "25": // 여행 코스
+            const tourCourseRes = await apiClient.get<
+              ApiResponseDto<TourCourseInfo>
+            >(
+              `/tourcourses/${contentId}` // 백엔드의 @RequestMapping("/api/tourcourses")와 매핑
+            );
+            if (tourCourseRes.data.code === "OK" && tourCourseRes.data.data) {
+              detailData = {
+                ...detailData,
+                tourCourseInfo: tourCourseRes.data.data,
+              };
+            }
+            break;
+          default:
+            // 그 외의 contentTypeId는 추가 상세 정보가 없거나, 아직 처리되지 않은 경우
+            break;
         }
+        return detailData; // 통합된 DetailDto 반환
       } else {
-        // 'code'가 'SUCCESS'가 아닌 경우 (백엔드에서 실패 응답)
-        throw new Error(
-          response.data.message || "데이터 로드 실패: 백엔드 오류"
+        console.warn(
+          `contentId ${contentId} 에 대한 기본 정보가 없습니다 (getDetailById).`
         );
+        throw new Error("정보를 찾을 수 없습니다.");
       }
     } catch (error) {
       console.error(
         `API 호출 중 오류 발생 (getDetailById - ${contentId}):`,
         error
       );
-      if (axios.isAxiosError(error)) {
-        throw new Error(`네트워크 오류 또는 서버 응답 문제: ${error.message}`);
-      }
+      // 에러 처리 로직
       throw error;
     }
   },

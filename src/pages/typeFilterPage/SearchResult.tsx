@@ -22,34 +22,23 @@ export default function SearchResult() {
         Object.fromEntries(searchParams.entries())
       );
 
-      const frontendParams = Object.fromEntries(searchParams.entries());
-
-      // 'category' (탭 값)를 백엔드에서 사용하는 'contentTypeId'로 변환
-      // URL 파라미터에 'category'가 없거나 유효하지 않으면 'tour' (관광지)를 기본값으로 사용
-      const defaultCategoryValue = "spots"; // '관광지'에 해당하는 value
-
-      // URL에서 받은 category 값 또는 기본값 'tour'를 사용하여 contentTypeId를 찾습니다.
-      const effectiveCategoryValue =
-        frontendParams.category || defaultCategoryValue;
-
-      // 프론트엔드 파라미터를 백엔드 SearchFilterRequest 인터페이스에 맞게 매핑
       const paramsToBackend: SearchFilterRequest = {
-        contentTypeid: effectiveCategoryValue, // 'contentTypeid' -> 'contentTypeId' (오타 수정 반영)
-        cat1: frontendParams.main,
-        cat2: frontendParams.mid,
-        cat3: frontendParams.detail,
-        lDongRegnCd: frontendParams.sido,
-        lDongSigunguCd: frontendParams.sigungu,
-        title: frontendParams.keyword,
+        contentTypeid: searchParams.get("contentTypeid") || undefined,
+        cat1: searchParams.get("cat1") || undefined,
+        cat2: searchParams.get("cat2") || undefined,
+        cat3: searchParams.get("cat3") || undefined,
+        areacode: searchParams.get("areacode") || undefined,
+        lDongSigunguCd: searchParams.get("lDongSigunguCd") || undefined,
+        title: searchParams.get("title") || undefined,
       };
-      console.log(paramsToBackend);
 
+      console.log(paramsToBackend);
       try {
         // ✅ searchApi.getFilteredSearches 함수 호출로 변경
         // 이 함수는 CommonContentDto[]를 직접 반환하거나 에러를 던집니다.
-        const data = await searchApi.getFilteredSearches(paramsToBackend);
-        setResult(data);
-        console.log("검색 결과 업데이트 완료", data);
+        const response = await searchApi.getFilteredSearches(paramsToBackend);
+        setResult(response);
+        console.log("검색 결과 업데이트 완료", response);
       } catch (err: any) {
         console.error("SearchResult에서 API 호출 중 최종 오류 발생:", err);
         setError(err.message || "알 수 없는 오류가 발생했습니다.");
@@ -64,7 +53,7 @@ export default function SearchResult() {
 
   return (
     <>
-      <div className="space-y-6 max-w-5xl mx-auto px-4 flex flex-col justify-start">
+      <div className="space-y-6 max-w-5xl mx-auto px-4 flex flex-col justify-start mt-10">
         <h3 className="text-xl font-semibold mb-4">검색 결과</h3>
 
         {isLoading && (

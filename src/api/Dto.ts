@@ -17,13 +17,13 @@ export interface SearchFilterRequest {
   cat1?: string;
   cat2?: string;
   cat3?: string;
-  areaCode?: string; // areaCode로 변경 (백엔드 요청과 일치)
+  areacode?: string; // areaCode로 변경 (백엔드 요청과 일치)
   title?: string;
   lDongSigunguCd?: string;
   lDongRegnCd?: string;
   // 필요하다면 페이징 관련 파라미터 (pageNo, numOfRows 등) 추가
-  pageNo?: number;
-  numOfRows?: number;
+  // pageNo?: number;
+  // numOfRows?: number;
 }
 
 // --- 상세 정보 내부에 포함될 수 있는 서브 DTO들 ---
@@ -114,11 +114,11 @@ export interface TourCourseInfo {
  */
 export interface CommonContentDto {
   contentId: string;
-  contentTypeId: string;
+  contenttypeid: string;
   cat1: string;
   cat2: string;
   cat3: string;
-  areaCode: string;
+  areacode: string;
   addr1: string;
   addr2: string;
   firstimage?: string; // 선택적 (필수 아님)
