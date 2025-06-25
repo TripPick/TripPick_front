@@ -49,7 +49,7 @@ export default function SearchResult() {
         // 이 함수는 CommonContentDto[]를 직접 반환하거나 에러를 던집니다.
         const data = await searchApi.getFilteredSearches(paramsToBackend);
         setResult(data);
-        console.log("검색 결과 업데이트 완료. 항목 수:", data.length);
+        console.log("검색 결과 업데이트 완료", data);
       } catch (err: any) {
         console.error("SearchResult에서 API 호출 중 최종 오류 발생:", err);
         setError(err.message || "알 수 없는 오류가 발생했습니다.");

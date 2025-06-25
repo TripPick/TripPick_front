@@ -176,6 +176,7 @@ export default function SearchFilter({
                   />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="_ALL_">전체</SelectItem>
                   {mainCategoryList.map((item) => (
                     <SelectItem key={item.code} value={item.code}>
                       {item.name}
@@ -204,6 +205,7 @@ export default function SearchFilter({
                   />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="_ALL_">전체</SelectItem>
                   {middleCategoryList.map((item) => (
                     <SelectItem key={item.code} value={item.code}>
                       {item.name}
@@ -232,6 +234,7 @@ export default function SearchFilter({
                   />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="_ALL_">전체</SelectItem>
                   {detailCategoryList.map((item) => (
                     <SelectItem key={item.code} value={item.code}>
                       {item.name}
@@ -284,6 +287,7 @@ export default function SearchFilter({
                   />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="_ALL_">전체</SelectItem>
                   {sigunguList.map((sigunguItem) => (
                     <SelectItem key={sigunguItem.code} value={sigunguItem.code}>
                       {sigunguItem.name}
