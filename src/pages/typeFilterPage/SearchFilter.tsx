@@ -16,10 +16,13 @@ import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
+// 새롭게 정의된 Custom DTO 임포트
+import type { SearchFilterRequest } from "@/api/Dto";
+
 interface SearchFilterProps {
   selectedCategory: CategoryType;
-  initialConditions: any;
-  onSearch: (conditions: any) => void;
+  initialConditions: SearchFilterRequest;
+  onSearch: (conditions: SearchFilterRequest) => void;
 }
 
 export default function SearchFilter({
@@ -27,14 +30,15 @@ export default function SearchFilter({
   initialConditions,
   onSearch,
 }: SearchFilterProps) {
-  const [conditions, setConditions] = useState(() => ({
-    category: initialConditions.category || selectedCategory.value, // 탭 값은 selectedCategory에서, 없으면 initialConditions
-    main: initialConditions.main || "",
-    mid: initialConditions.mid || "",
-    detail: initialConditions.detail || "",
-    sido: initialConditions.sido || "",
-    sigungu: initialConditions.sigungu || "",
-    keyword: initialConditions.keyword || "",
+  const [conditions, setConditions] = useState<SearchFilterRequest>(() => ({
+    contentTypeId:
+      initialConditions.contentTypeId || selectedCategory.contentTypeId,
+    cat1: initialConditions.cat1 || "",
+    cat2: initialConditions.cat2 || "",
+    cat3: initialConditions.cat3 || "",
+    lDongRegnCd: initialConditions.lDongRegnCd || "_ALL_", // 초기값에 "_ALL_" 적용
+    lDongSigunguCd: initialConditions.lDongSigunguCd || "_ALL_", // 초기값에 "_ALL_" 적용
+    title: initialConditions.title || "",
   }));
 
   // ---------------------- Custom Hook 사용 ----------------------
@@ -48,7 +52,7 @@ export default function SearchFilter({
     data: sigunguList,
     isLoading: isSigunguLoading,
     error: sigunguError,
-  } = useSigunguCodes(conditions.sido);
+  } = useSigunguCodes(conditions.lDongRegnCd);
 
   // 카테고리 코드
   const {
@@ -60,64 +64,71 @@ export default function SearchFilter({
     data: middleCategoryList,
     isLoading: isMiddleCategoryLoading,
     error: middleCategoryError,
-  } = useCategoryCodes(selectedCategory.contentTypeId, conditions.main, null);
+  } = useCategoryCodes(selectedCategory.contentTypeId, conditions.cat1, null);
   const {
     data: detailCategoryList,
     isLoading: isDetailCategoryLoading,
     error: detailCategoryError,
   } = useCategoryCodes(
     selectedCategory.contentTypeId,
-    conditions.main,
-    conditions.mid
+    conditions.cat1,
+    conditions.cat2
   );
 
   // URL 파라미터 변경 시 conditions 상태를 업데이트
-  // 이 useEffect는 initialConditions가 변경될 때마다 실행되어 URL과 SearchFilter 상태를 동기화합니다.
   useEffect(() => {
     setConditions({
-      category: initialConditions.category || selectedCategory.value,
-      main: initialConditions.main || "",
-      mid: initialConditions.mid || "",
-      detail: initialConditions.detail || "",
-      sido: initialConditions.sido || "",
-      sigungu: initialConditions.sigungu || "",
-      keyword: initialConditions.keyword || "",
+      contentTypeId:
+        initialConditions.contentTypeId || selectedCategory.contentTypeId,
+      cat1: initialConditions.cat1 || "",
+      cat2: initialConditions.cat2 || "",
+      cat3: initialConditions.cat3 || "",
+      lDongRegnCd: initialConditions.lDongRegnCd || "_ALL_", // 초기값에 "_ALL_" 적용
+      lDongSigunguCd: initialConditions.lDongSigunguCd || "_ALL_", // 초기값에 "_ALL_" 적용
+      title: initialConditions.title || "",
     });
   }, [initialConditions, selectedCategory]);
 
   // 대분류 변경 시 중/소분류 초기화
   useEffect(() => {
-    // conditions.main이 initialConditions.main과 다를 때만 초기화 (사용자 입력에 의한 변경)
-    if (conditions.main !== initialConditions.main) {
+    if (conditions.cat1 !== initialConditions.cat1) {
       setConditions((prev) => ({
         ...prev,
-        mid: "",
-        detail: "",
+        cat2: "",
+        cat3: "",
       }));
     }
-  }, [conditions.main, initialConditions.main]); // initialConditions.main을 의존성에 추가
+  }, [conditions.cat1, initialConditions.cat1]);
 
   // 중분류 변경 시 소분류 초기화
   useEffect(() => {
-    // conditions.mid가 initialConditions.mid와 다를 때만 초기화
-    if (conditions.mid !== initialConditions.mid) {
+    if (conditions.cat2 !== initialConditions.cat2) {
       setConditions((prev) => ({
         ...prev,
-        detail: "",
+        cat3: "",
       }));
     }
-  }, [conditions.mid, initialConditions.mid]); // initialConditions.mid를 의존성에 추가
+  }, [conditions.cat2, initialConditions.cat2]);
 
   // 시/도 변경 시 시/군/구 초기화
   useEffect(() => {
-    // conditions.sido가 initialConditions.sido와 다를 때만 초기화
-    if (conditions.sido !== initialConditions.sido) {
+    if (conditions.lDongRegnCd !== initialConditions.lDongRegnCd) {
       setConditions((prev) => ({
         ...prev,
-        sigungu: "",
+        lDongSigunguCd: "_ALL_", // 시/도 변경 시 시/군/구 초기화 값을 "_ALL_"로 변경
       }));
     }
-  }, [conditions.sido, initialConditions.sido]); // initialConditions.sido를 의존성에 추가
+  }, [conditions.lDongRegnCd, initialConditions.lDongRegnCd]);
+
+  // Select 박스 등의 값 변경 핸들러
+  const handleSelectChange =
+    (field: keyof SearchFilterRequest) => (value: string) => {
+      setConditions((prev) => ({ ...prev, [field]: value }));
+    };
+
+  const handleKeywordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setConditions((prev) => ({ ...prev, title: e.target.value }));
+  };
 
   const handleLocalSearch = () => {
     onSearch(conditions);
@@ -148,13 +159,11 @@ export default function SearchFilter({
           <h3 className="text-xl font-semibold">상세필터</h3>
 
           <div className="flex flex-wrap gap-4">
-            {/* 대분류 Select */}
+            {/* 대분류 Select (카테고리는 일반적으로 "전체"를 사용하지 않음) */}
             <div className="flex flex-col">
               <Select
-                value={conditions.main}
-                onValueChange={(value) =>
-                  setConditions((prev) => ({ ...prev, main: value }))
-                }
+                value={conditions.cat1}
+                onValueChange={handleSelectChange("cat1")}
                 disabled={
                   isMainCategoryLoading || mainCategoryList.length === 0
                 }
@@ -179,12 +188,10 @@ export default function SearchFilter({
             {/* 중분류 Select */}
             <div className="flex flex-col">
               <Select
-                value={conditions.mid}
-                onValueChange={(value) =>
-                  setConditions((prev) => ({ ...prev, mid: value }))
-                }
+                value={conditions.cat2}
+                onValueChange={handleSelectChange("cat2")}
                 disabled={
-                  !conditions.main ||
+                  !conditions.cat1 ||
                   isMiddleCategoryLoading ||
                   middleCategoryList.length === 0
                 }
@@ -209,12 +216,10 @@ export default function SearchFilter({
             {/* 소분류 Select */}
             <div className="flex flex-col">
               <Select
-                value={conditions.detail}
-                onValueChange={(value) =>
-                  setConditions((prev) => ({ ...prev, detail: value }))
-                }
+                value={conditions.cat3}
+                onValueChange={handleSelectChange("cat3")}
                 disabled={
-                  !conditions.mid ||
+                  !conditions.cat2 ||
                   isDetailCategoryLoading ||
                   detailCategoryList.length === 0
                 }
@@ -239,10 +244,8 @@ export default function SearchFilter({
             {/* 지역 Selects */}
             <div className="flex flex-col">
               <Select
-                value={conditions.sido}
-                onValueChange={(value) =>
-                  setConditions((prev) => ({ ...prev, sido: value }))
-                }
+                value={conditions.lDongRegnCd}
+                onValueChange={handleSelectChange("lDongRegnCd")}
                 disabled={isSidoLoading}
               >
                 <SelectTrigger className="w-[180px]">
@@ -264,12 +267,11 @@ export default function SearchFilter({
 
             <div className="flex flex-col">
               <Select
-                value={conditions.sigungu}
-                onValueChange={(value) =>
-                  setConditions((prev) => ({ ...prev, sigungu: value }))
-                }
+                value={conditions.lDongSigunguCd}
+                onValueChange={handleSelectChange("lDongSigunguCd")}
                 disabled={
-                  !conditions.sido ||
+                  !conditions.lDongRegnCd ||
+                  conditions.lDongRegnCd === "_ALL_" || // "전체"가 선택되면 시군구 비활성화
                   isSigunguLoading ||
                   sigunguList.length === 0
                 }
@@ -295,11 +297,8 @@ export default function SearchFilter({
             <Input
               type="text"
               placeholder="검색어 입력"
-              // className="flex-[8] rounded border border-gray-300 px-4 py-2 focus:outline-none"
-              value={conditions.keyword}
-              onChange={(e) =>
-                setConditions((prev) => ({ ...prev, keyword: e.target.value }))
-              }
+              value={conditions.title}
+              onChange={handleKeywordChange}
             />
             <Button
               size="lg"

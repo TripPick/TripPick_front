@@ -1,12 +1,12 @@
-import { searchApi, type SearchDto, type SearchParams } from "@/api/search";
+import { searchApi } from "@/api/search";
 import PagedContentGrid from "@/components/PagedContentGrid";
-import { category } from "@/pages/typeFilterPage/categoryType";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import type { CommonContentDto, SearchFilterRequest } from "@/api/Dto";
 
 export default function SearchResult() {
   const [searchParams] = useSearchParams(); // URL 파라미터를 읽어옴
-  const [result, setResult] = useState<SearchDto[]>([]); // 검색 결과를 저장할 상태 (SearchDto[] 타입 지정)
+  const [result, setResult] = useState<CommonContentDto[]>([]); // 검색 결과를 저장할 상태 (CommonContentDto[] 타입 지정)
   const [isLoading, setIsLoading] = useState<boolean>(false); // API 호출 중인지 나타내는 상태
   const [error, setError] = useState<string | null>(null); // 오류 메시지를 저장할 상태
 
@@ -25,44 +25,29 @@ export default function SearchResult() {
       const frontendParams = Object.fromEntries(searchParams.entries());
 
       // 'category' (탭 값)를 백엔드에서 사용하는 'contentTypeId'로 변환
-      const selectedContentTypeId = frontendParams.category
-        ? category.find((cat) => cat.value === frontendParams.category) // cat.value로 변경 확인
-            ?.contentTypeId
-        : undefined;
+      // URL 파라미터에 'category'가 없거나 유효하지 않으면 'tour' (관광지)를 기본값으로 사용
+      const defaultCategoryValue = "spots"; // '관광지'에 해당하는 value
 
-      // 프론트엔드 파라미터를 백엔드 SearchParams 인터페이스에 맞게 매핑
-      const paramsToBackend: SearchParams = {
-        contentTypeId: selectedContentTypeId,
+      // URL에서 받은 category 값 또는 기본값 'tour'를 사용하여 contentTypeId를 찾습니다.
+      const effectiveCategoryValue =
+        frontendParams.category || defaultCategoryValue;
+
+      // 프론트엔드 파라미터를 백엔드 SearchFilterRequest 인터페이스에 맞게 매핑
+      const paramsToBackend: SearchFilterRequest = {
+        contentTypeid: effectiveCategoryValue, // 'contentTypeid' -> 'contentTypeId' (오타 수정 반영)
         cat1: frontendParams.main,
         cat2: frontendParams.mid,
         cat3: frontendParams.detail,
-        lDongRenCd: frontendParams.sido,
-        lDongSignguCd: frontendParams.sigungu,
-        keyword: frontendParams.keyword,
-        // 필요하다면 여기에 페이지네이션 관련 파라미터도 추가
-        // page: frontendParams.page ? parseInt(frontendParams.page) : 1,
-        // size: frontendParams.size ? parseInt(frontendParams.size) : 10,
+        lDongRegnCd: frontendParams.sido,
+        lDongSigunguCd: frontendParams.sigungu,
+        title: frontendParams.keyword,
       };
-
-      // 값이 없는 파라미터 제거 (undefined, null, 빈 문자열, "_ALL_" 값)
-      const cleanedParams: SearchParams = Object.fromEntries(
-        Object.entries(paramsToBackend).filter(
-          ([, value]) =>
-            value !== undefined &&
-            value !== null &&
-            value !== "" &&
-            value !== "_ALL_"
-        )
-      ) as SearchParams; // 안전한 캐스팅을 위해 as SearchParams 추가
-
-      console.log(
-        "백엔드로 전송될 최종 파라미터 (cleanedParams):",
-        cleanedParams
-      );
+      console.log(paramsToBackend);
 
       try {
-        // ✅ 이제 searchApi.search는 직접 SearchDto[]를 반환하거나 에러를 던집니다.
-        const data = await searchApi.search(cleanedParams);
+        // ✅ searchApi.getFilteredSearches 함수 호출로 변경
+        // 이 함수는 CommonContentDto[]를 직접 반환하거나 에러를 던집니다.
+        const data = await searchApi.getFilteredSearches(paramsToBackend);
         setResult(data);
         console.log("검색 결과 업데이트 완료. 항목 수:", data.length);
       } catch (err: any) {
@@ -85,8 +70,6 @@ export default function SearchResult() {
         {isLoading && (
           <div className="text-center py-8">
             <p>데이터를 불러오는 중입니다...</p>
-            {/* 필요하다면 여기에 로딩 스피너 아이콘(예: Lucide React의 Loader2) 등을 추가할 수 있습니다. */}
-            {/* <Loader2 className="h-8 w-8 animate-spin text-blue-500 mx-auto mt-4" /> */}
           </div>
         )}
 
