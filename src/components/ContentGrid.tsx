@@ -1,7 +1,8 @@
 import { MapPin } from "lucide-react";
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
-
+import type { SearchDto } from "@/api/search";
 import { useNavigate } from "react-router-dom";
+import type { CommonContentDto } from "@/api/Dto";
 import type { CommonContentDto } from "@/api/Dto";
 
 interface ContentGridProps {

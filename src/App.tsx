@@ -5,7 +5,11 @@ import Layout from "./layouts/Layout";
 import TypeFilterPage from "./pages/typeFilterPage";
 import MainPage from "./pages/main/MainPage";
 import { AuthProvider } from "./contexts/AuthContext";
+<<<<<<< HEAD
+import './App.css';
+=======
 import "./App.css";
+>>>>>>>>> Temporary merge branch 2
 import ApiTestPage from "@/pages/apiTestPageg";
 import DetailPage from "@/pages/DetailPage";
 
