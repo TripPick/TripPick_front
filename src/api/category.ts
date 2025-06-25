@@ -30,7 +30,7 @@ export interface CategoryCodeResponse {
 
 export const categoryApi = {
   getCategoryCodes: async (
-    contentTypeId: number, // 필수: 관광타입 ID
+    contentTypeId: string, // 필수: 관광타입 ID
     cat1: string | null = null, // 선택: 대분류 코드
     cat2: string | null = null // 선택: 중분류 코드
   ): Promise<CategoryCodeItem[]> => {

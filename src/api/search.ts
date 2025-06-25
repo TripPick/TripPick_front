@@ -1,81 +1,203 @@
 import { apiClient } from "@/api";
 import axios from "axios";
+import type {
+  ApiResponseDto,
+  CommonContentDto,
+  CulturalFacilityInfo,
+  DetailDto,
+  FestivalInfo,
+  SearchFilterRequest,
+  TourCourseInfo,
+  TourCourseItem,
+  TourSpotInfo,
+} from "@/api/Dto";
 
-// 백엔드 반환 결과 Dto
-export interface SearchDto {
-  // 백엔드에서 받은 실제 데이터
-  contentId: string;
-  firstimage?: string; // 백엔드에서 받은 실제 firstimage (이미지 URL)
-  title?: string;
-  addr1?: string;
-}
+export const searchApi = {
+  /**
+   * 필터링된 검색 결과를 가져오는 함수
+   * POST /api/search/filter
+   * @param filters SearchFilterRequest DTO 형태의 필터 조건 (요청 바디)
+   * @returns CommonContentDto 배열
+   */
+  getFilteredSearches: async (
+    filters: SearchFilterRequest // filters 객체를 그대로 받음
+  ): Promise<CommonContentDto[]> => {
+    try {
+      const params = new URLSearchParams();
 
-export interface SearchParams {
-  contentTypeId?: number;
-  cat1?: string;
-  cat2?: string;
-  cat3?: string;
-  lDongRenCd?: string;
-  lDongSignguCd?: string;
-  keyword?: string;
-}
+      // filters 객체의 각 속성을 순회하며 쿼리 파라미터로 추가
+      // null, undefined, 빈 문자열, "_ALL_" 값은 쿼리 파라미터에서 제외 (여기서만 정제)
+      for (const [key, value] of Object.entries(filters)) {
+        if (
+          value !== undefined &&
+          value !== null &&
+          value !== "" &&
+          value !== "_ALL_"
+        ) {
+          params.append(key, String(value));
+        }
+      }
 
-interface ApiResponseDto<T> {
-  code: string; // Java의 private String code; 에 해당
-  message: string; // Java의 private String message; 에 해당
-  data: T; // Java의 private T data; 에 해당
-}
+      const url = `/search/filter?${params.toString()}`;
+      const response = await apiClient.get<ApiResponseDto<CommonContentDto[]>>(
+        url
+      );
+      return response.data.data;
+    } catch (error) {
+      console.error("필터링된 검색 결과를 가져오는 데 실패했습니다:", error);
+      throw error;
+    }
+  },
 
 export const searchApi = {
   // 백엔드 API 호출 및 데이터 반환
   _internalSearchRaw: (params: SearchParams) =>
     apiClient.get<ApiResponseDto<any[]>>("/search", { params }),
-
-  getDistinctCat1: () => apiClient.get<ApiResponseDto<string[]>>("/cat1"),
-
-  // 데이터 가공
-  search: async (params: SearchParams): Promise<SearchDto[]> => {
+  /**
+   * 특정 contentId에 해당하는 상세 정보를 가져오는 함수
+   * GET /api/search/{contentId}
+   * @param contentId 상세 정보를 조회할 콘텐츠 ID
+   * @returns DetailDto 객체
+   */
+  getDetailById: async (contentId: string): Promise<DetailDto> => {
     try {
-      const response = await searchApi._internalSearchRaw(params);
+      // 1단계: 기본적인 SearchDto (이제 DetailDto로 대체) 정보를 먼저 가져옵니다.
+      const response = await apiClient.get<ApiResponseDto<DetailDto>>(
+        `/search/${contentId}` // 백엔드의 getSearchById와 매핑되는 엔드포인트
+      );
 
-      // 백엔드 호출 성공 여부 판단
-      if (response.data.code === "OK") {
-        if (Array.isArray(response.data.data)) {
-          // 백엔드 데이터를 SearchDto 타입에 맞춰 매핑합니다.
-          const formattedResults: SearchDto[] = response.data.data.map(
-            (item: any) => ({
-              contentId: item.contentId,
-              title: item.title,
-              addr1: item.addr1,
-              addr2: item.addr2,
-              firstimage: item.firstimage,
-              firstimage2: item.firstimage2, // firstimage2도 백엔드에 있다면 매핑
-            })
-          );
-          return formattedResults; // 포맷팅된 결과 반환
-        } else {
-          // data가 배열이 아닌 경우 (백엔드 응답 구조 불일치)
-          console.warn(
-            "API 응답 데이터 형식이 배열이 아닙니다 (searchApi):",
-            response.data.data
-          );
-          throw new Error(
-            response.data.message || "API 응답 데이터 형식이 잘못되었습니다."
-          );
+      if (response.data.code === "OK" && response.data.data) {
+        let detailData: DetailDto = response.data.data; // 기본 정보
+
+        // 2단계: contentTypeId에 따라 추가 상세 정보를 가져옵니다.
+        const contentTypeId = detailData.contenttypeid;
+        console.log("contentTypeId 실제 타입:", typeof contentTypeId);
+        console.log("contentTypeId 실제 값:", contentTypeId);
+
+        switch (contentTypeId) {
+          case "12": // 관광지
+            console.log("관광지 상세 검색 시작");
+            const tourSpotRes = await apiClient.get<
+              ApiResponseDto<TourSpotInfo>
+            >(
+              `/tourspots/${contentId}` // 백엔드의 @RequestMapping("/api/tourspots")와 매핑
+            );
+            if (tourSpotRes.data.code === "OK" && tourSpotRes.data.data) {
+              detailData = {
+                ...detailData,
+                tourSpotInfo: tourSpotRes.data.data,
+              };
+              console.log("관광지 상세정보", detailData);
+            }
+            break;
+          case "14": // 문화시설
+            const culturalRes = await apiClient.get<
+              ApiResponseDto<CulturalFacilityInfo>
+            >(
+              `/culturalfacilities/${contentId}` // 백엔드의 @RequestMapping("/api/culturalfacilities")와 매핑
+            );
+            if (culturalRes.data.code === "OK" && culturalRes.data.data) {
+              detailData = {
+                ...detailData,
+                culturalFacilityInfo: culturalRes.data.data,
+              };
+            }
+            break;
+          case "15": // 축제/공연/행사
+            const festivalRes = await apiClient.get<
+              ApiResponseDto<FestivalInfo>
+            >(
+              `/festivals/${contentId}` // 백엔드의 @RequestMapping("/api/festivals")와 매핑
+            );
+            if (festivalRes.data.code === "OK" && festivalRes.data.data) {
+              detailData = {
+                ...detailData,
+                festivalInfo: festivalRes.data.data,
+              };
+            }
+            break;
+          case "25": // 여행 코스
+            const tourCourseRes = await apiClient.get<
+              ApiResponseDto<TourCourseInfo>
+            >(
+              `/tourcourses/${contentId}` // 백엔드의 @RequestMapping("/api/tourcourses")와 매핑
+            );
+            if (tourCourseRes.data.code === "OK" && tourCourseRes.data.data) {
+              detailData = {
+                ...detailData,
+                tourCourseInfo: tourCourseRes.data.data,
+              };
+            }
+            // TourCourseItemController의 getTourCourseById를 호출
+            const tourCourseItemRes = await apiClient.get<
+              // 변수명 변경 (tourCourseItem -> tourCourseItemRes)
+              ApiResponseDto<TourCourseItem> // 백엔드에서 반환하는 타입에 맞게 DTO 타입 변경
+            >(
+              `/touritems/${contentId}` // 백엔드의 @RequestMapping("/api/touritems")와 매핑
+            );
+
+            if (
+              tourCourseItemRes.data.code === "OK" &&
+              tourCourseItemRes.data.data
+            ) {
+              // tourCourseRes -> tourCourseItemRes로 변경
+              detailData = {
+                ...detailData,
+                tourCourseItem: tourCourseItemRes.data.data, // detailData에 tourCourseItemInfo 추가
+              };
+            }
+            break;
+          default:
+            // 그 외의 contentTypeId는 추가 상세 정보가 없거나, 아직 처리되지 않은 경우
+            break;
         }
+        return detailData; // 통합된 DetailDto 반환
       } else {
-        // 'code'가 'OK'가 아닌 경우 (백엔드에서 실패 응답)
+        console.warn(
+          `contentId ${contentId} 에 대한 기본 정보가 없습니다 (getDetailById).`
+        );
+        throw new Error("정보를 찾을 수 없습니다.");
+      }
+    } catch (error) {
+      console.error(
+        `API 호출 중 오류 발생 (getDetailById - ${contentId}):`,
+        error
+      );
+      // 에러 처리 로직
+      throw error;
+    }
+  },
+
+  /**
+   * contentTypeId에 해당하는 랜덤값을 가져오는 함수
+   * GET /api/search/random
+   * @param contentTypeid 랜덤 조회하는 api
+   * @returns DetailDto 객체
+   */
+  getRandomByContentTypeId: async (
+    contentTypeid: string,
+    limit: number = 4
+  ): Promise<CommonContentDto[]> => {
+    try {
+      const response = await apiClient.get<ApiResponseDto<CommonContentDto[]>>(
+        `/search/random?contentTypeId=${contentTypeid}&limit=${limit}` // 백엔드의 getSearchById와 매핑되는 엔드포인트
+      );
+      if (response.data.code === "OK" && response.data.data) {
+        console.log("randomdata", response.data.data);
+        return response.data.data;
+      } else {
+        const errorMessage =
+          response.data.message || "유효하지 않은 API 응답입니다.";
         throw new Error(
-          response.data.message || "데이터 로드 실패: 백엔드 오류"
+          `API 응답 오류 (getRandomByContentTypeID - ${contentTypeid}): ${errorMessage}`
         );
       }
     } catch (error) {
-      console.error("API 호출 중 오류 발생 (searchApi.search):", error);
-      // Axios 에러인 경우 Axios의 메시지를 사용 (예: Network Error)
-      if (axios.isAxiosError(error)) {
-        throw new Error("네트워크 오류 또는 서버 응답 문제: " + error.message);
-      }
-      throw error; // 그 외의 알 수 없는 에러는 다시 던집니다.
+      console.error(
+        `API 호출 중 오류 발생 (getRandomByContentTypeID - ${contentTypeid}):`,
+        error
+      );
+      throw error;
     }
   },
 };

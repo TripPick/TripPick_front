@@ -1,5 +1,3 @@
-// src/hooks/useAreaCodes.ts
-
 import { useState, useEffect } from "react";
 import { areaApi, type AreaCodeItem } from "@/api/area"; // api 경로 확인
 
@@ -34,6 +32,7 @@ export function useSidoCodes(isAll=true): UseAreaCodesResult {
         }
         setData([...result]);
         // API 결과 앞에 "전체" 옵션을 추가합니다.
+
       } catch (err) {
         setError(err as Error);
       } finally {
@@ -54,16 +53,25 @@ export function useSigunguCodes(sidoCode: string | null): UseAreaCodesResult {
 
   useEffect(() => {
     const fetchCodes = async () => {
-      if (!sidoCode) {
-        setData([]);
+      // sidoCode가 없거나 "_ALL_"이면 목록을 비우고 로딩을 종료
+      if (!sidoCode || sidoCode === "_ALL_") {
+        setData([{ rnum: 0, code: "_ALL_", name: "전체" }]); // 시/군/구도 "전체" 옵션만 포함
         setIsLoading(false);
         return;
       }
+
       try {
         setIsLoading(true);
         setError(null);
         const result = await areaApi.getAreaCodes(sidoCode);
-        setData(result);
+
+        // "전체" 항목을 API 결과 앞에 추가
+        const allOption: AreaCodeItem = {
+          rnum: 0,
+          code: "_ALL_",
+          name: "전체",
+        };
+        setData([allOption, ...result]); // 시/군/구 목록에도 "전체" 추가
       } catch (err) {
         setError(err as Error);
       } finally {

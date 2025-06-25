@@ -1,16 +1,16 @@
 import { useState } from "react";
 import ContentGrid from "./ContentGrid";
 import { Button } from "@/components/ui/button";
-import type { SearchDto } from "@/api/search";
+import type { CommonContentDto } from "@/api/Dto";
 
 interface PagedContentGridProps {
-  items: SearchDto[]; // 배열 타입 명시
+  items: CommonContentDto[]; // 배열 타입 명시
   itemsPerPage?: number; // optional + 기본값 있음
 }
 
 export default function PagedContentGrid({
   items,
-  itemsPerPage = 16,
+  itemsPerPage = 12,
 }: PagedContentGridProps) {
   const [currentPage, setCurrentPage] = useState(1);
 

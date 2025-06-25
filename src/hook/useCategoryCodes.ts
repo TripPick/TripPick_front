@@ -10,7 +10,7 @@ interface UseCategoryCodesResult {
 }
 
 export function useCategoryCodes(
-  contentTypeId: number,
+  contentTypeId: string | null = null,
   cat1: string | null = null,
   cat2: string | null = null
 ): UseCategoryCodesResult {

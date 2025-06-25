@@ -1,134 +1,80 @@
+import type { CommonContentDto } from "@/api/Dto";
+import searchApi from "@/api/search";
 import ContentGrid from "@/components/ContentGrid";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Building, Landmark, MapIcon, PartyPopper } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function RecommendedContentSection() {
-  const recommendationData = useMemo(
+  const navigate = useNavigate();
+
+  // 공공데이터포털 기준 contentTypeId: 12(관광지), 14(문화시설), 15(축제공연행사), 25(여행코스)
+  const contentTypeIds = useMemo(
     () => ({
-      spots: [
-        {
-          contentId: "1",
-          title: "경복궁",
-          addr1: "서울 종로구 사직로 161",
-          firstfirstimage:
-            "https://placehold.co/600x400/a78bfa/ffffff?text=Gyeongbokgung",
-        },
-        {
-          contentId: "2",
-          title: "남산서울타워",
-          addr1: "서울 용산구 남산공원길 105",
-          firstfirstimage:
-            "https://placehold.co/600x400/f87171/ffffff?text=N+Seoul+Tower",
-        },
-        {
-          contentId: "3",
-          title: "해운대해수욕장",
-          addr1: "부산 해운대구 우동",
-          firstfirstimage: "https://placehold.co/600x400/34d399/ffffff?text=Haeundae",
-        },
-        {
-          contentId: "4",
-          title: "성산일출봉",
-          addr1: "제주 서귀포시 성산읍 성산리",
-          firstfirstimage:
-            "https://placehold.co/600x400/fb923c/ffffff?text=Seongsan+Ilchulbong",
-        },
-      ],
-      facilities: [
-        {
-          contentId: "5",
-          title: "국립중앙박물관",
-          addr: "서울 용산구 서빙고로 137",
-          firstimage:
-            "https://placehold.co/600x400/60a5fa/ffffff?text=National+Museum",
-        },
-        {
-          contentId: "6",
-          title: "예술의전당",
-          addr: "서울 서초구 남부순환로 2406",
-          firstimage:
-            "https://placehold.co/600x400/c084fc/ffffff?text=Seoul+Arts+Center",
-        },
-        {
-          contentId: "7",
-          title: "독립기념관",
-          addr: "충남 천안시 동남구 목천읍 독립기념관로 1",
-          firstimage:
-            "https://placehold.co/600x400/f472b6/ffffff?text=Independence+Hall",
-        },
-        {
-          contentId: "8",
-          title: "부산시립미술관",
-          addr: "부산 해운대구 APEC로 58",
-          firstimage:
-            "https://placehold.co/600x400/4ade80/ffffff?text=Busan+Museum+of+Art",
-        },
-      ],
-      festivals: [
-        {
-          contentId: "9",
-          title: "보령머드축제",
-          addr: "충남 보령시 신흑동",
-          firstimage: "https://placehold.co/600x400/22d3ee/ffffff?text=Mud+Festival",
-        },
-        {
-          contentId: "10",
-          title: "진해군항제",
-          addr: "경남 창원시 진해구",
-          firstimage:
-            "https://placehold.co/600x400/f9a8d4/ffffff?text=Jinhae+Gunhangje",
-        },
-        {
-          contentId: "11",
-          title: "안동국제탈춤페스티벌",
-          addr: "경북 안동시 육사로 239",
-          firstimage:
-            "https://placehold.co/600x400/fdba74/ffffff?text=Andong+Mask+Dance",
-        },
-        {
-          contentId: "12",
-          title: "서울세계불꽃축제",
-          addr: "서울 영등포구 여의동로 330",
-          firstimage:
-            "https://placehold.co/600x400/818cf8/ffffff?text=Seoul+Fireworks",
-        },
-      ],
-      courses: [
-        {
-          contentId: "13",
-          title: "서울 도심 고궁 나들이",
-          addr: "서울 종로구 일대",
-          firstimage:
-            "https://placehold.co/600x400/d8b4fe/ffffff?text=Seoul+Palace+Tour",
-        },
-        {
-          contentId: "14",
-          title: "제주 올레길 7코스",
-          addr: "제주 서귀포시 법환포구",
-          firstimage: "https://placehold.co/600x400/93c5fd/ffffff?text=Olle+Trail+7",
-        },
-        {
-          contentId: "15",
-          title: "부산 해안도로 드라이브",
-          addr: "부산 해운대구~기장군",
-          firstimage:
-            "https://placehold.co/600x400/6ee7b7/ffffff?text=Busan+Coastal+Road",
-        },
-        {
-          contentId: "16",
-          title: "경주 역사 유적지 탐방",
-          addr: "경북 경주시 일대",
-          firstimage:
-            "https://placehold.co/600x400/fca5a5/ffffff?text=Gyeongju+Historic",
-        },
-      ],
+      spots: "12", // 관광지
+      facilities: "14", // 문화시설
+      festivals: "15", // 축제/행사
+      courses: "25", // 여행코스
     }),
     []
   );
-  const navigate = useNavigate();
+
+  // 각 탭의 랜덤 콘텐츠를 저장할 상태
+  const [randomContents, setRandomContents] = useState<{
+    spots: CommonContentDto[];
+    facilities: CommonContentDto[];
+    festivals: CommonContentDto[];
+    courses: CommonContentDto[];
+  }>({
+    spots: [],
+    facilities: [],
+    festivals: [],
+    courses: [],
+  });
+
+  const [currentTab, setCurrentTab] =
+    useState<keyof typeof contentTypeIds>("spots");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchRandomContent = async () => {
+      setIsLoading(true);
+      setError(null);
+
+      const contentTypeId = contentTypeIds[currentTab];
+      if (!contentTypeId) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const data = await searchApi.getRandomByContentTypeId(contentTypeId, 4);
+
+        setRandomContents((prev) => ({
+          ...prev,
+          [currentTab]: data,
+        }));
+      } catch (err: any) {
+        console.error(`랜덤 콘텐츠 로드 실패 (${currentTab}):`, err);
+        setError(
+          `콘텐츠를 불러오는 중 오류가 발생했습니다: ${
+            err.message || "알 수 없는 오류"
+          }`
+        );
+        setRandomContents((prev) => ({
+          ...prev,
+          [currentTab]: [],
+        }));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchRandomContent();
+  }, [currentTab, contentTypeIds]);
 
   const handleButton = () => {
     navigate("/type-filter");
@@ -144,7 +90,12 @@ export default function RecommendedContentSection() {
           </p>
         </div>
         <div className="mt-12">
-          <Tabs defaultValue="spots">
+          <Tabs
+            defaultValue="spots"
+            onValueChange={(value) =>
+              setCurrentTab(value as keyof typeof contentTypeIds)
+            }
+          >
             <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
               <TabsTrigger value="spots">
                 <Landmark className="mr-2 h-5 w-5" />
@@ -163,18 +114,54 @@ export default function RecommendedContentSection() {
                 여행코스
               </TabsTrigger>
             </TabsList>
-            <TabsContent value="spots">
-              <ContentGrid items={recommendationData.spots} />
-            </TabsContent>
-            <TabsContent value="facilities">
-              <ContentGrid items={recommendationData.facilities} />
-            </TabsContent>
-            <TabsContent value="festivals">
-              <ContentGrid items={recommendationData.festivals} />
-            </TabsContent>
-            <TabsContent value="courses">
-              <ContentGrid items={recommendationData.courses} />
-            </TabsContent>
+            {isLoading ? (
+              <div className="text-center mt-4 p-4 text-lg">
+                추천 콘텐츠를 불러오는 중...
+              </div>
+            ) : error ? (
+              <div className="text-center mt-4 p-4 text-red-500 text-lg">
+                오류: {error}
+              </div>
+            ) : (
+              <>
+                <TabsContent value="spots">
+                  {randomContents.spots.length > 0 ? (
+                    <ContentGrid items={randomContents.spots} />
+                  ) : (
+                    <div className="text-center mt-4 p-4 text-muted-foreground">
+                      관광지 콘텐츠가 없습니다.
+                    </div>
+                  )}
+                </TabsContent>
+                <TabsContent value="facilities">
+                  {randomContents.facilities.length > 0 ? (
+                    <ContentGrid items={randomContents.facilities} />
+                  ) : (
+                    <div className="text-center mt-4 p-4 text-muted-foreground">
+                      문화시설 콘텐츠가 없습니다.
+                    </div>
+                  )}
+                </TabsContent>
+                <TabsContent value="festivals">
+                  {randomContents.festivals.length > 0 ? (
+                    <ContentGrid items={randomContents.festivals} />
+                  ) : (
+                    <div className="text-center mt-4 p-4 text-muted-foreground">
+                      축제/행사 콘텐츠가 없습니다.
+                    </div>
+                  )}
+                </TabsContent>
+                <TabsContent value="courses">
+                  {randomContents.courses.length > 0 ? (
+                    <ContentGrid items={randomContents.courses} />
+                  ) : (
+                    <div className="text-center mt-4 p-4 text-muted-foreground">
+                      여행코스 콘텐츠가 없습니다.
+                    </div>
+                  )}
+                </TabsContent>
+              </>
+            )}
           </Tabs>
           <div className="flex justify-end mt-8">
             <Button
