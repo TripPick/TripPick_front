@@ -1,16 +1,25 @@
 import { MapPin } from "lucide-react";
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import type { SearchDto } from "@/api/search";
+import { useNavigate } from "react-router-dom";
+import type { CommonContentDto } from "@/api/Dto";
 
 interface ContentGridProps {
-  items: SearchDto[];
+  items: CommonContentDto[];
 }
 
 export default function ContentGrid({ items }: ContentGridProps) {
+  const navigate = useNavigate();
+  const handleCardClick = (contentId: string) => {
+    navigate(`/resultDetail/${contentId}`);
+  };
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
       {items.map((item) => (
-        <Card key={item.contentId} className="overflow-hidden group">
+        <Card
+          key={item.contentId}
+          className="overflow-hidden group"
+          onClick={() => handleCardClick(item.contentId)}
+        >
           <div className="relative aspect-video -m-10">
             <img
               src={item.firstimage}

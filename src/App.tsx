@@ -5,8 +5,13 @@ import Layout from "./layouts/Layout";
 import TypeFilterPage from "./pages/typeFilterPage";
 import MainPage from "./pages/main/MainPage";
 import { AuthProvider } from "./contexts/AuthContext";
+<<<<<<< HEAD
 import './App.css';
+=======
+import "./App.css";
+>>>>>>> typeFilterPage3
 import ApiTestPage from "@/pages/apiTestPageg";
+import DetailPage from "@/pages/DetailPage";
 
 function App() {
   return (
@@ -20,6 +25,7 @@ function App() {
               <Route path="register" element={<SignUpPage />} />
               <Route path="type-filter" element={<TypeFilterPage />} />
               <Route path="apitest" element={<ApiTestPage />} />
+              <Route path="resultDetail/:contentId" element={<DetailPage />} />
             </Route>
           </Routes>
         </div>
