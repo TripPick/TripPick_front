@@ -11,7 +11,14 @@ import {
 import RecommendedContentSection from "./RecommendedContentSection";
 import { useMemo, useState } from "react";
 import TravelSession from "./TravelSession";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
 
 export default function MainPage() {
@@ -55,10 +62,21 @@ export default function MainPage() {
   ];
 
   const handleSearch = () => {
-    // 선택한 값과 검색어를 쿼리 파라미터로 전달
     const params = new URLSearchParams();
-    if (selectedCategory) params.append("category", selectedCategory);
-    if (keyword) params.append("keyword", keyword);
+
+    if (selectedCategory) {
+      const foundCategory = categories.find(
+        (cat) => cat.value === selectedCategory
+      );
+      if (foundCategory) {
+        params.append("contentTypeid", String(foundCategory.contentTypeId)); // 숫자를 문자열로 변환하여 추가
+      }
+    }
+
+    // 2. 키워드를 "title" 파라미터로 추가
+    if (keyword) {
+      params.append("title", keyword);
+    }
 
     navigate(`/type-filter?${params.toString()}`);
   };
@@ -116,7 +134,7 @@ export default function MainPage() {
                     sideOffset={4}
                   >
                     {categories.map((category, index) => (
-                      <SelectItem key={index} value={category.value} >
+                      <SelectItem key={index} value={category.value}>
                         {category.label}
                       </SelectItem>
                     ))}
