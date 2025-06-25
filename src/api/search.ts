@@ -1,5 +1,4 @@
 import { apiClient } from "@/api";
-import axios from "axios";
 import type {
   ApiResponseDto,
   CommonContentDto,
@@ -12,8 +11,11 @@ import type {
   TourSpotInfo,
 } from "@/api/Dto";
 
+
+
 export const searchApi = {
-  /**
+
+   /**
    * 필터링된 검색 결과를 가져오는 함수
    * POST /api/search/filter
    * @param filters SearchFilterRequest DTO 형태의 필터 조건 (요청 바디)
@@ -24,7 +26,6 @@ export const searchApi = {
   ): Promise<CommonContentDto[]> => {
     try {
       const params = new URLSearchParams();
-
       // filters 객체의 각 속성을 순회하며 쿼리 파라미터로 추가
       // null, undefined, 빈 문자열, "_ALL_" 값은 쿼리 파라미터에서 제외 (여기서만 정제)
       for (const [key, value] of Object.entries(filters)) {
@@ -37,7 +38,6 @@ export const searchApi = {
           params.append(key, String(value));
         }
       }
-
       const url = `/search/filter?${params.toString()}`;
       const response = await apiClient.get<ApiResponseDto<CommonContentDto[]>>(
         url
@@ -49,9 +49,8 @@ export const searchApi = {
     }
   },
 
-export const searchApi = {
   // 백엔드 API 호출 및 데이터 반환
-  _internalSearchRaw: (params: SearchParams) =>
+  _internalSearchRaw: (params: SearchFilterRequest) =>
     apiClient.get<ApiResponseDto<any[]>>("/search", { params }),
   /**
    * 특정 contentId에 해당하는 상세 정보를 가져오는 함수
