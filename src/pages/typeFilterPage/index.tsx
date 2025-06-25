@@ -59,7 +59,7 @@ export default function TypePage() {
   );
 
   return (
-    <>
+    <div className="bg-secondary/50">
       <TabList
         selectedCategory={currentCategoryFromUrl} // URL에서 읽은 값 전달
         onSelectCategory={handleSelectCategory}
@@ -74,6 +74,6 @@ export default function TypePage() {
         />
       )}
       <SearchResult />
-    </>
+    </div>
   );
 }

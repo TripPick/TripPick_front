@@ -7,6 +7,8 @@ import MainPage from "./pages/main/MainPage";
 import { AuthProvider } from "./contexts/AuthContext";
 import "./App.css";
 import ApiTestPage from "@/pages/apiTestPageg";
+import AiPlaner from "./pages/aiPlaner";
+import PrivateRoute from "./components/PrivateRoute";
 import DetailPage from "@/pages/DetailPage";
 
 function App() {
@@ -21,6 +23,9 @@ function App() {
               <Route path="register" element={<SignUpPage />} />
               <Route path="type-filter" element={<TypeFilterPage />} />
               <Route path="apitest" element={<ApiTestPage />} />
+              <Route element={<PrivateRoute />}>
+                <Route path="aiplanner" element={<AiPlaner />} />
+              </Route>
               <Route path="detail-page/:contentId" element={<DetailPage />} />
             </Route>
           </Routes>

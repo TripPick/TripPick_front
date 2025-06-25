@@ -49,6 +49,10 @@ export const searchApi = {
     }
   },
 
+export const searchApi = {
+  // 백엔드 API 호출 및 데이터 반환
+  _internalSearchRaw: (params: SearchParams) =>
+    apiClient.get<ApiResponseDto<any[]>>("/search", { params }),
   /**
    * 특정 contentId에 해당하는 상세 정보를 가져오는 함수
    * GET /api/search/{contentId}

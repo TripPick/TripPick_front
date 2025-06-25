@@ -158,7 +158,7 @@ export default function SearchFilter({
 
   return (
     <>
-      <section id="searchFilter" className="bg-secondary/50 py-4">
+      <section id="searchFilter" className="py-4">
         <div className="space-y-6 max-w-5xl mx-auto px-4 flex flex-col justify-start">
           <h3 className="text-xl font-semibold">상세필터</h3>
 
