@@ -17,7 +17,7 @@ export interface SearchFilterRequest {
   cat1?: string;
   cat2?: string;
   cat3?: string;
-  areacode?: string; // areaCode로 변경 (백엔드 요청과 일치)
+  areaCode?: string; // areaCode로 변경 (백엔드 요청과 일치)
   title?: string;
   lDongSigunguCd?: string;
   lDongRegnCd?: string;

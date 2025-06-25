@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/select";
 import { type CategoryType } from "@/pages/typeFilterPage/categoryType";
 
-import { useSidoCodes, useSigunguCodes } from "@/hook/useAreaCodes"; // useAreaCodes 훅 임포트
+import { useSidoCodes, useSigunguCodes } from "@/hook/useAreaCodes"; // useareaCodes 훅 임포트
 import { useCategoryCodes } from "@/hook/useCategoryCodes";
 
 import { Button } from "@/components/ui/button";

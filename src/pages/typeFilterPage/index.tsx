@@ -41,7 +41,7 @@ export default function TypePage() {
           value !== "" &&
           value !== "_ALL_"
         ) {
-          if (key === "areaCode") {
+          if (key === "areacode") {
             // 만약 conditions 객체의 키가 areaCode라면
             newSearchParams.set("areacode", value); // URL에는 areacode로 설정
           } else {
